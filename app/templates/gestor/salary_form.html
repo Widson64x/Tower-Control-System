@@ -1,0 +1,30 @@
+<!-- templates/gestor/salary_form.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Novo Salário</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="user_id" class="form-label">Funcionário</label>
+        <select class="form-control" name="user_id" id="user_id" required>
+            <option value="">Selecione...</option>
+            {% for user in colaboradores %}
+                <option value="{{ user.id }}">{{ user.nome }} ({{ user.email }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="valor" class="form-label">Valor</label>
+        <input type="number" step="0.01" class="form-control" name="valor" id="valor" required>
+    </div>
+    <div class="mb-3">
+        <label for="moeda" class="form-label">Moeda</label>
+        <input type="text" class="form-control" name="moeda" id="moeda" value="BRL" maxlength="3" required>
+    </div>
+    <div class="mb-3">
+        <label for="data_inicio" class="form-label">Data de Início</label>
+        <input type="date" class="form-control" name="data_inicio" id="data_inicio" value="{{ current_date }}">
+    </div>
+    <button type="submit" class="btn btn-success">Cadastrar Salário</button>
+    <a href="{{ url_for('salary.salaries_list') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

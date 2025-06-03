@@ -9,20 +9,24 @@ class User(db.Model, UserMixin):
     nome = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(128), nullable=False)
-    tipo = db.Column(db.String(50), default="colaborador")  
-        # Exemplo: "colaborador", "gestor", "analista" etc.
+    tipo = db.Column(db.String(50), default="colaborador")  # Exemplo: "colaborador", "gestor", "analista" etc.
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+    active = db.Column(db.Boolean, default=True)  # True = ativo, False = inativo
+    profile_picture = db.Column(db.String(255))
 
     # Relacionamento 1:1 com Salary (cada usuário tem no máximo 1 salário “fixo”)
-    salary = db.relationship('Salary', back_populates='user', uselist=False)
+    salary = db.relationship(
+        'Salary',
+        back_populates='user',
+        uselist=False,
+        foreign_keys='Salary.user_id'   # Corrigido aqui!
+    )
 
     # Relacionamento 1:N com Bonus (cada usuário pode ter N bonificações)
     bonuses = db.relationship('Bonus', back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<User {self.email}>"
-
-
 
 class Feedback(db.Model):
     __tablename__ = "feedbacks"
@@ -70,19 +74,22 @@ class Salary(db.Model):
     __tablename__ = "salaries"
 
     id = db.Column(db.Integer, primary_key=True)
-
-    # Cada salary referencia exatamente um usuário (1:1)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    gestor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     valor = db.Column(db.Float, nullable=False)
     moeda = db.Column(db.String(3), nullable=False, default='BRL')
     data_inicio = db.Column(db.Date, nullable=False, default=date.today)
-    observacao = db.Column(db.String(255), nullable=True)
 
-    # Relacionamento de volta para User
-    user = db.relationship('User', back_populates='salary')
+    user = db.relationship(
+        'User',
+        foreign_keys=[user_id],
+        back_populates='salary'
+    )
+    gestor = db.relationship(
+        'User',
+        foreign_keys=[gestor_id]
+    )
 
-    def __repr__(self):
-        return f"<Salary user_id={self.user_id} valor={self.valor} {self.moeda}>"
 
 
 class Bonus(db.Model):

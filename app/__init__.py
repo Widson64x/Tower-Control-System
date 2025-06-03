@@ -2,9 +2,10 @@ from flask import Flask
 from .config import Config
 from .extensions import db, login_manager
 from .routes.auth import auth_bp
-from .routes.gestor import gestor_bp
+from .routes.home import home_bp
 from .routes.feedback import feedback_bp
 from .routes.times import times_bp
+from .routes.salaries import salary_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,9 +22,11 @@ def create_app():
 
     # Registrar blueprints
     app.register_blueprint(auth_bp)
-    app.register_blueprint(gestor_bp)
+    app.register_blueprint(home_bp)
     app.register_blueprint(feedback_bp)
     app.register_blueprint(times_bp)
+    app.register_blueprint(salary_bp)
+
 
     login_manager.login_view = "auth.login"
 

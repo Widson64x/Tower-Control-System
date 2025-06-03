@@ -14,7 +14,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.senha_hash, senha):
             login_user(user)
-            return redirect(url_for("gestor.home"))
+            return redirect(url_for("home.home"))
         else:
             flash("Email ou senha incorretos!")
     return render_template("login.html")
