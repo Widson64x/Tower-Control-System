@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}Time {{ time.nome }} | Tower Control{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  .team-header-card {
+    background: linear-gradient(90deg, #f3f4f6 65%, #e0f7fa 100%);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 rgba(22,72,130,0.08);
+    padding: 2rem 2.5rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 2rem;
+  }
+  .team-header-card .icon-bg {
+    position: absolute;
+    right: 2rem;
+    bottom: 1rem;
+    opacity: 0.09;
+    font-size: 7rem;
+    color: #039be5;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .team-header-info {
+    z-index: 2;
+    flex: 1 1 330px;
+    min-width: 290px;
+  }
+  .team-header-actions {
+    z-index: 2;
+    display: flex;
+    gap: 1rem;
+  }
+  .table-team thead th {
+    background: #e7f5fa;
+  }
+  .add-member-form {
+    background: #f9fafb;
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px 0 rgba(0,0,0,0.04);
+    padding: 1.3rem 2rem 1.5rem 2rem;
+    margin-top: 2rem;
+    max-width: 660px;
+  }
+  .badge-status {
+    font-size: .85rem;
+    letter-spacing: .01em;
+    padding: .42em 1.1em;
+  }
+  .member-responsabilidade textarea {
+    min-width: 120px;
+    max-width: 220px;
+    min-height: 32px;
+    max-height: 80px;
+    font-size: 1em;
+  }
+  .table-team td, .table-team th { vertical-align: middle; }
+  .btn-action {
+    padding: .35em .7em;
+    font-size: 1.15em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .5em;
+  }
+  .member-card {
+    background: #fff;
+    border-radius: 1.1rem;
+    box-shadow: 0 2px 10px 0 rgba(10,40,80,0.06);
+    padding: 1.2rem 1.2rem .8rem 1.2rem;
+    margin-bottom: 1.4rem;
+  }
+  textarea.form-control,
+  textarea.form-control-sm {
+    min-height: 38px;
+    height: 38px;
+    max-height: 100px;
+    
+    resize: vertical;
+  }
+  .edit-time-card { display: none; }
+  .edit-time-card.show { display: block; animation: fadeIn .3s; }
+  @keyframes fadeIn { from {opacity: 0;transform: translateY(30px);} to {opacity: 1;transform: none;} }
+  
+  @media (max-width: 900px) {
+    .team-header-card { flex-direction: column; gap: 1.2rem; padding: 1.3rem 1rem; }
+    .team-header-card .icon-bg { font-size: 5.5rem; right: .5rem; }
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HEADER DO TIME -->
+<div class="team-header-card mb-4 position-relative">
+  <div class="team-header-info">
+    <h2 class="fw-bold mb-2 d-flex align-items-center" style="font-size:2.1rem;">
+      <span class="material-icons text-info me-2" style="font-size:2.6rem;">groups</span>
+      {{ time.nome }}
+      <button id="editTimeBtn" class="btn btn-outline-secondary btn-sm ms-3 d-flex align-items-center" type="button">
+        <span class="material-icons me-1" style="font-size:1.3em;">edit</span> Editar
+      </button>
+    </h2>
+    <div class="mb-2 small text-muted d-flex gap-4 flex-wrap">
+      <span>
+        <span class="material-icons" style="font-size:1.3em;vertical-align:-3px;">person</span>
+        <b>Gestor:</b>
+        <span class="badge bg-light text-dark ms-1">{{ time.gestor.nome if time.gestor else "Sem gestor" }}</span>
+      </span>
+      <span>
+        <span class="material-icons" style="font-size:1.3em;vertical-align:-3px;">fiber_manual_record</span>
+        <span class="badge bg-{{ 'success' if time.status == 'ativo' else 'secondary' }} badge-status text-uppercase">{{ time.status }}</span>
+      </span>
+      <span>
+        <span class="material-icons" style="font-size:1.15em;vertical-align:-3px;">group</span>
+        <b>{{ membros|length }}</b> membros
+      </span>
+    </div>
+    <div class="text-muted mt-2" style="font-size:1.1rem;">{{ time.descricao or "Sem descrição." }}</div>
+  </div>
+  <div class="icon-bg">
+    <span class="material-icons" style="font-size:inherit;">device_hub</span>
+  </div>
+      <a href="{{ url_for('times.times_list') }}" class="btn btn-outline-secondary btn-sm">
+      <span class="material-icons" style="font-size:1.3em;">arrow_back</span>
+      Voltar aos Times
+    </a>
+</div>
+
+<!-- CARD DE EDIÇÃO (INICIALMENTE OCULTO) -->
+<div class="card shadow-sm mb-4 border-0 edit-time-card" id="editTimeCard">
+  <div class="card-body">
+    <form method="post" class="row g-3 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label mb-1"><span class="material-icons" style="font-size:1.1em;">card_text</span> Nome do Time</label>
+        <input type="text" name="nome" value="{{ time.nome }}" class="form-control" required>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label mb-1"><span class="material-icons" style="font-size:1.1em;">person</span> Gestor</label>
+        <select name="gestor_id" class="form-select" required>
+          {% for u in users %}
+            <option value="{{ u.id }}" {% if time.gestor_id == u.id %}selected{% endif %}>{{ u.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label mb-1"><span class="material-icons" style="font-size:1.1em;">description</span> Descrição</label>
+        <textarea name="descricao" class="form-control" rows="2" placeholder="Descrição detalhada do time">{{ time.descricao or '' }}</textarea>
+      </div>
+      <div class="col-md-auto mt-3">
+        <button type="submit" class="btn btn-outline-primary px-4">
+          <span class="material-icons">save</span> Salvar Alterações
+        </button>
+        <button type="button" class="btn btn-link ms-2 text-danger" id="cancelEditTimeBtn">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MEMBROS DO TIME -->
+<div class="member-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h4 class="fw-semibold mb-0 d-flex align-items-center" style="font-size:1.3rem;">
+      <span class="material-icons text-info me-1" style="vertical-align:-4px;">group</span> Membros do time
+    </h4>
+    <span class="text-muted small">{{ membros|length }} membro(s)</span>
+  </div>
+  <div class="table-responsive mb-0">
+    <table class="table table-striped table-hover align-middle table-team mb-0">
+      <thead>
+        <tr>
+          <th style="min-width:140px;">Nome</th>
+          <th style="min-width:180px;">Responsabilidade</th>
+          <th>Entrada</th>
+          <th class="text-center" style="width: 90px;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in membros %}
+          <tr>
+            <td>
+              <span class="fw-medium"><span class="material-icons text-secondary" style="vertical-align:-4px;">person</span> {{ m.user.nome }}</span>
+            </td>
+            <td class="member-responsabilidade">
+              <form method="post" action="{{ url_for('times.times_editar_membro', time_id=time.id, membro_id=m.id) }}" class="d-flex gap-2 align-items-center">
+                <textarea name="responsabilidade" class="form-control form-control-sm" rows="2" placeholder="Descreva o papel">{{ m.responsabilidade or '' }}</textarea>
+                <button type="submit" class="btn btn-action btn-outline-primary" title="Salvar função">
+                  <span class="material-icons">save</span>
+                </button>
+              </form>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark">{{ m.data_entrada.strftime('%d/%m/%Y') if m.data_entrada else '-' }}</span>
+            </td>
+            <td class="text-center">
+              <form method="post" action="{{ url_for('times.times_remover_membro', time_id=time.id, membro_id=m.id) }}" style="display:inline" onsubmit="return confirm('Remover este membro do time?');">
+                <button type="submit" class="btn btn-action btn-outline-danger" title="Remover membro">
+                  <span class="material-icons">delete</span>
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="text-center text-muted">Nenhum membro ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FORM PARA ADICIONAR MEMBRO -->
+<div class="add-member-form mx-auto mt-5">
+  <h5 class="fw-bold mb-3 d-flex align-items-center">
+    <span class="material-icons text-success me-2">person_add</span> Adicionar membro
+  </h5>
+  <form method="post" action="{{ url_for('times.times_add_membro', time_id=time.id) }}" class="row g-2 align-items-end">
+    <div class="col-12 col-md-5">
+      <select name="user_id" class="form-select" required>
+        <option value="">Selecione usuário</option>
+        {% for u in users %}
+          <option value="{{ u.id }}">{{ u.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-5">
+      <textarea name="responsabilidade" class="form-control" rows="2" placeholder="Responsabilidade/cargo"></textarea>
+    </div>
+    <div class="col-12 col-md-auto">
+      <button type="submit" class="btn btn-success px-4 d-flex align-items-center gap-1">
+        <span class="material-icons">add</span> Adicionar
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- RESTANTE DA SUA PÁGINA (MEMBROS, ETC) -->
+<script>
+  // Exibe o card de edição
+  document.addEventListener("DOMContentLoaded", function() {
+    const editBtn = document.getElementById('editTimeBtn');
+    const editCard = document.getElementById('editTimeCard');
+    const cancelBtn = document.getElementById('cancelEditTimeBtn');
+    if (editBtn && editCard) {
+      editBtn.onclick = () => {
+        editCard.classList.add('show');
+        window.scrollTo({top: editCard.offsetTop-40, behavior:'smooth'});
+      }
+    }
+    if (cancelBtn) {
+      cancelBtn.onclick = () => {
+        editCard.classList.remove('show');
+      }
+    }
+  });
+</script>
+
+{% endblock %}
