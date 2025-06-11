@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from .config import Config
 from .extensions import db, login_manager
 from .routes.auth import auth_bp
@@ -30,5 +30,10 @@ def create_app():
 
     login_manager.login_view = "auth.login"
 
+    # Adicione esta rota:
+    @app.route("/")
+    def index():
+        return redirect(url_for("home.home"))
+    
     return app
 
