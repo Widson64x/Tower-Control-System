@@ -521,26 +521,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
             {% if current_user.is_authenticated %}
-              <li class="nav-item">
-                <a class="nav-link {% if request.endpoint == 'home.home' %}active{% endif %}" href="{{ url_for('home.home') }}">
-                    <i class="bi bi-house-door"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if request.blueprint == 'feedbacks' %}active{% endif %}" href="{{ url_for('feedbacks.dashboard_feedbacks') }}">
-                    <i class="bi bi-chat-left-dots"></i> Feedbacks
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('funcionarios.lista_funcionarios') }}">
-                    <i class="bi bi-people"></i> Colaboradores
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('promocoes.lista_funcionarios') }}">
-                    <i class="bi bi-arrow-up-right-square"></i> Promoções
-                </a>
-              </li>
               {# Adicione outros links de navegação aqui, se houver #}
 
               <li class="nav-item dropdown ms-lg-2">
