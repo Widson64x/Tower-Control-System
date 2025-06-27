@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Time{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <h2 class="fw-bold text-primary mb-2">
+                <i class="bi bi-people"></i> {{ time.nome }}
+            </h2>
+            <p class="mb-1">
+                <i class="bi bi-person-badge"></i>
+                <strong>Gestor:</strong> {{ time.gestor.nome }}
+            </p>
+            <p class="mb-1">
+                <span class="badge bg-{{ 'success' if time.status == 'ativo' else 'secondary' }}">
+                    {{ time.status|capitalize }}
+                </span>
+            </p>
+            <p class="mb-1">
+                <i class="bi bi-card-text"></i>
+                <strong>Descrição:</strong> {{ time.descricao or 'Sem descrição' }}
+            </p>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-secondary mb-0">
+            <i class="bi bi-person-lines-fill"></i> Membros do Time
+        </h3>
+        <a href="{{ url_for('times.adicionar_membro', time_id=time.id) }}" class="btn btn-success shadow">
+            <i class="bi bi-person-plus"></i> Adicionar Funcionário
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle shadow-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Funcionário</th>
+                    <th>Responsabilidade</th>
+                    <th>Data de Entrada</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for membro in time.membros %}
+                {% if membro.status == 'ativo' %}
+                <tr>
+                    <td>
+                        <i class="bi bi-person-circle text-primary"></i>
+                        {{ membro.user.nome }}
+                    </td>
+                    <td>{{ membro.responsabilidade or '—' }}</td>
+                    <td>{{ membro.data_entrada.strftime('%d/%m/%Y') if membro.data_entrada else '—' }}</td>
+                    <td>
+                        <span class="badge bg-success">Ativo</span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('times.remover_membro', membro_id=membro.id) }}"
+                           class="btn btn-outline-danger btn-sm"
+                           onclick="return confirm('Remover este funcionário do time?');">
+                           <i class="bi bi-trash"></i> Remover
+                        </a>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

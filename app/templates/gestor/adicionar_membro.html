@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Membro ao Time{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 fw-bold text-primary">Adicionar Membro ao Time {{ time.nome }}</h1>
+
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label">Funcionário</label>
+        <select name="user_id" class="form-select" required>
+            <option value="">Selecione...</option>
+            {% for func in funcionarios %}
+                <option value="{{ func.user.id }}">{{ func.user.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Responsabilidade</label>
+        <input type="text" name="responsabilidade" class="form-control" placeholder="Ex.: Dev Backend, QA, PO">
+    </div>
+
+    <button type="submit" class="btn btn-success">Adicionar</button>
+    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

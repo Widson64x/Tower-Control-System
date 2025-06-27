@@ -8,9 +8,54 @@
 
 <div class="row g-4">
 
+    <!-- Card Funcionários -->
+  <div class="col-12 col-md-6 col-lg-4">
+    <a href="{{ url_for('funcionarios.lista_funcionarios') }}" class="text-decoration-none">
+      <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="bi bi-person-badge-fill text-primary" style="font-size: 2.5rem;"></i>
+          </div>
+          <h5 class="card-title fw-semibold">Funcionários</h5>
+          <p class="card-text text-muted small">Gestão dos funcionários da empresa.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Card Times -->
+  <div class="col-12 col-md-6 col-lg-4">
+    <a href="{{ url_for('times.times_list') }}" class="text-decoration-none">
+      <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="bi bi-people-fill text-success" style="font-size: 2.5rem;"></i>
+          </div>
+          <h5 class="card-title fw-semibold">Times</h5>
+          <p class="card-text text-muted small">Gerencie os times, adicione e organize funcionários.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+    <!-- Card Promoções -->
+  <div class="col-12 col-md-6 col-lg-4">
+    <a href="{{ url_for('promocoes.lista_funcionarios') }}" class="text-decoration-none">
+      <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="bi bi-bar-chart-steps text-info" style="font-size: 2.5rem;"></i>
+          </div>
+          <h5 class="card-title fw-semibold">Promoções</h5>
+          <p class="card-text text-muted small">Acompanhe promoções e avanços.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  
   <!-- Card Feedbacks -->
   <div class="col-12 col-md-6 col-lg-4">
-    <a href="{{ url_for('feedback.feedbacks_list') }}" class="text-decoration-none">
+    <a href="#" class="text-decoration-none">
       <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
         <div class="card-body text-center">
           <div class="mb-3">
@@ -23,24 +68,9 @@
     </a>
   </div>
 
-  <!-- Card Equipe -->
-  <div class="col-12 col-md-6 col-lg-4">
-    <a href="{{ url_for('times.times_list') }}" class="text-decoration-none">
-      <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
-        <div class="card-body text-center">
-          <div class="mb-3">
-            <i class="bi bi-people-fill text-success" style="font-size: 2.5rem;"></i>
-          </div>
-          <h5 class="card-title fw-semibold">Equipe</h5>
-          <p class="card-text text-muted small">Veja membros, estrutura e funções.</p>
-        </div>
-      </div>
-    </a>
-  </div>
-
   <!-- Card Salários -->
   <div class="col-12 col-md-6 col-lg-4">
-   <a href="{{ url_for('salary.salaries_list') }}" class="text-decoration-none">
+   <a href="#" class="text-decoration-none">
       <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
         <div class="card-body text-center">
           <div class="mb-3">
@@ -48,21 +78,6 @@
           </div>
           <h5 class="card-title fw-semibold">Salários</h5>
           <p class="card-text text-muted small">Gestão de salários e histórico.</p>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <!-- Card Promoções -->
-  <div class="col-12 col-md-6 col-lg-4">
-    <a href="#" class="text-decoration-none">
-      <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
-        <div class="card-body text-center">
-          <div class="mb-3">
-            <i class="bi bi-bar-chart-steps text-info" style="font-size: 2.5rem;"></i>
-          </div>
-          <h5 class="card-title fw-semibold">Promoções</h5>
-          <p class="card-text text-muted small">Acompanhe promoções e avanços.</p>
         </div>
       </div>
     </a>

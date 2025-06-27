@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Funcionários | Tower Control{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 fw-bold text-primary">Funcionários</h1>
+
+<a href="{{ url_for('funcionarios.adicionar_funcionario') }}" class="btn btn-primary mb-3">Adicionar Funcionário</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Cargo</th>
+            <th>Salário</th>
+            <th>Data de Entrada</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for funcionario in funcionarios %}
+        <tr>
+            <td>{{ funcionario.user.nome }}</td>
+            <td>{{ funcionario.cargo }}</td>
+            <td>R$ {{ funcionario.salario }}</td>
+            <td>{{ funcionario.data_entrada.strftime('%d/%m/%Y') }}</td>
+            <td>{{ funcionario.status }}</td>
+            <td>
+                {% if funcionario.active %}
+                <form action="{{ url_for('funcionarios.demitir_funcionario', funcionario_id=funcionario.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja demitir este funcionário?');">Demitir</button>
+                </form>
+                {% else %}
+                <span class="text-muted">Inativo</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

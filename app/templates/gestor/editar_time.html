@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Time{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 fw-bold text-primary">Editar Time {{ time.nome }}</h1>
+
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label">Nome do Time</label>
+        <input type="text" name="nome" class="form-control" value="{{ time.nome }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descrição</label>
+        <textarea name="descricao" class="form-control">{{ time.descricao }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Gestor do Time</label>
+        <select name="gestor_id" class="form-select" required>
+            {% for gestor in gestores %}
+                <option value="{{ gestor.id }}" {% if gestor.id == time.gestor_id %}selected{% endif %}>
+                    {{ gestor.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

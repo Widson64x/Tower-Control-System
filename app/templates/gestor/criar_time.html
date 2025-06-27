@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Criar Time{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow border-0 mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h2 class="fw-bold text-primary mb-4">
+                <i class="bi bi-plus-circle"></i> Criar Novo Time
+            </h2>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Nome do Time</label>
+                    <input type="text" name="nome" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <textarea name="descricao" class="form-control"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Gestor do Time</label>
+                    <select name="gestor_id" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        {% for gestor in gestores %}
+                            <option value="{{ gestor.id }}">{{ gestor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Criar Time
+                    </button>
+                    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

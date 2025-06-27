@@ -1,98 +1,55 @@
-{% extends "base.html" %}
-{% block title %}Times | Tower Control{% endblock %}
+{% extends 'base.html' %}
 
-{% block extra_head %}
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<style>
-  .team-card {
-    border-radius: 1.25rem;
-    box-shadow: 0 3px 18px 0 rgba(80,130,200,.09);
-    border: none;
-    transition: transform .15s, box-shadow .15s;
-    position: relative;
-    overflow: hidden;
-    min-height: 215px;
-  }
-  .team-card:hover {
-    transform: translateY(-3px) scale(1.012);
-    box-shadow: 0 6px 36px 0 rgba(60,130,160,.13);
-  }
-  .team-badge {
-    font-size: .88rem;
-    border-radius: 1em;
-    padding: .38em 1em;
-    vertical-align: baseline;
-    background: #e0f7fa;
-    color: #039be5;
-  }
-  .status-dot {
-    font-size: 1em;
-    vertical-align: -3px;
-  }
-  .btn-action {
-    min-width: 38px;
-    padding: .3em .6em;
-  }
-  .team-card .material-icons {
-    vertical-align: middle;
-  }
-</style>
-{% endblock %}
+{% block title %}Gestão de Times{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-4">
-  <h2 class="fw-bold mb-0 d-flex align-items-center">
-    <span class="material-icons text-success me-2" style="font-size:2rem;">groups</span>
-    Times
-  </h2>
-  <a href="{{ url_for('times.times_novo') }}" class="btn btn-success btn-lg d-flex align-items-center gap-1 shadow-sm">
-    <span class="material-icons">add_circle</span> Novo Time
-  </a>
-</div>
-<div class="row g-4">
-  {% for t in times %}
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card team-card h-100">
-        <div class="card-body pb-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="fw-bold mb-0">
-              <span class="material-icons text-info me-1" style="font-size:1.4em;">groups</span>
-              {{ t.nome }}
-            </h5>
-            <span class="team-badge d-inline-flex align-items-center">
-              <span class="material-icons me-1" style="font-size:1em;">person</span>
-              {{ t.qtd_membros if t.qtd_membros is defined else t.membros|length if t.membros is defined else '0' }}
-              <span class="ms-1 text-muted" style="font-size: .85em;">membro{{ (t.qtd_membros if t.qtd_membros is defined else t.membros|length if t.membros is defined else 0) > 1 and 's' or '' }}</span>
-            </span>
-          </div>
-          <div class="d-flex gap-2 flex-wrap mb-1 text-muted small align-items-center">
-            <span>
-              <span class="material-icons text-secondary me-1" style="font-size:1.1em;">person_outline</span>
-              <b>Gestor:</b> {{ t.gestor.nome if t.gestor else "Sem gestor" }}
-            </span>
-            <span>
-              <span class="material-icons status-dot {{ 'text-success' if t.status == 'ativo' else 'text-secondary' }}">fiber_manual_record</span>
-              <span class="badge bg-{{ 'success' if t.status == 'ativo' else 'secondary' }} text-uppercase ms-1" style="font-size:0.85em;">{{ t.status }}</span>
-            </span>
-          </div>
-          <p class="mb-2 small text-body">{{ t.descricao or "Sem descrição." }}</p>
-        </div>
-        <div class="card-footer bg-white border-0 pt-0 d-flex gap-2">
-          <a href="{{ url_for('times.times_detalhe', time_id=t.id) }}" class="btn btn-outline-primary btn-action flex-grow-1 d-flex align-items-center justify-content-center">
-            <span class="material-icons me-1">info</span> Detalhes
-          </a>
-          <form method="post" action="{{ url_for('times.times_apagar', time_id=t.id) }}" class="d-inline-block flex-grow-1" onsubmit="return confirm('Tem certeza que deseja apagar este time?');">
-            <button type="submit" class="btn btn-outline-danger btn-action w-100 d-flex align-items-center justify-content-center">
-              <span class="material-icons me-1">delete</span> Excluir
-            </button>
-          </form>
-        </div>
-      </div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold text-primary mb-0">
+            <i class="bi bi-people-fill"></i> Times da Empresa
+        </h1>
+        <a href="{{ url_for('times.criar_time') }}" class="btn btn-success shadow">
+            <i class="bi bi-plus-circle"></i> Criar Novo Time
+        </a>
     </div>
-  {% else %}
-    <div class="col-12">
-      <div class="alert alert-info shadow-sm">Nenhum time cadastrado.</div>
+
+    <div class="row g-4">
+        {% for time in times %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-primary me-2" style="font-size:1rem;">
+                            <i class="bi bi-people"></i>
+                        </span>
+                        <h5 class="card-title mb-0">{{ time.nome }}</h5>
+                    </div>
+                    <p class="mb-1 text-muted">
+                        <i class="bi bi-person-badge"></i>
+                        <strong>Gestor:</strong> {{ time.gestor.nome }}
+                    </p>
+                    <p class="mb-1">
+                        <span class="badge bg-{{ 'success' if time.status == 'ativo' else 'secondary' }}">
+                            {{ time.status|capitalize }}
+                        </span>
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-people"></i>
+                        <strong>Membros ativos:</strong>
+                        <span class="badge bg-info text-dark">
+                            {{ time.membros | selectattr('status', 'equalto', 'ativo') | list | length }}
+                        </span>
+                    </p>
+                    <a href="{{ url_for('times.detalhes_time', time_id=time.id) }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-eye"></i> Detalhes do Time
+                    </a>
+                    <a href="{{ url_for('times.editar_time', time_id=time.id) }}" class="btn btn-outline-warning w-100">
+                        <i class="bi bi-pencil-square"></i> Editar Time
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-  {% endfor %}
 </div>
 {% endblock %}

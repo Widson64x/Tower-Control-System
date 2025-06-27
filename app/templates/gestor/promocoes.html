@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Promoções{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 fw-bold text-primary">Promoções de Funcionários</h1>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Funcionário</th>
+            <th>Cargo Atual</th>
+            <th>Salário Atual</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for func in funcionarios %}
+        <tr>
+            <td>{{ func.user.nome }}</td>
+            <td>{{ func.cargo }}</td>
+            <td>R$ {{ "%.2f"|format(func.salario) }}</td>
+            <td>
+                <a href="{{ url_for('promocoes.promover_funcionario', funcionario_id=func.id) }}" class="btn btn-sm btn-success">
+                    🎯 Promover
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

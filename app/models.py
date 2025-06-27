@@ -4,43 +4,33 @@ from datetime import datetime, date
 
 class User(db.Model, UserMixin):
     __tablename__ = "users"
-
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(128), nullable=False)
-    tipo = db.Column(db.String(50), default="colaborador")  # Exemplo: "colaborador", "gestor", "analista" etc.
+    tipo = db.Column(db.String(50), default="colaborador")
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    active = db.Column(db.Boolean, default=True)  # True = ativo, False = inativo
+    active = db.Column(db.Boolean, default=True)
     profile_picture = db.Column(db.String(255))
-
-    # Relacionamento 1:1 com Salary (cada usuário tem no máximo 1 salário “fixo”)
-    salary = db.relationship(
-        'Salary',
-        back_populates='user',
-        uselist=False,
-        foreign_keys='Salary.user_id'   # Corrigido aqui!
-    )
-
-    # Relacionamento 1:N com Bonus (cada usuário pode ter N bonificações)
-    bonuses = db.relationship('Bonus', back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<User {self.email}>"
 
-class Feedback(db.Model):
-    __tablename__ = "feedbacks"
-
+class Employees(db.Model):
+    __tablename__ = "employees"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    gestor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    data = db.Column(db.DateTime, default=db.func.now())
-    texto = db.Column(db.Text, nullable=False)
-    nota = db.Column(db.Integer, nullable=False, default=5)  # 1 a 5
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    cargo = db.Column(db.String(120), nullable=False)
+    salario = db.Column(db.Numeric(10, 2), nullable=False)
+    media_feedbacks = db.Column(db.Numeric(3, 2), default=0.0)
+    data_entrada = db.Column(db.Date, default=date.today)
+    status = db.Column(db.String(50), default='Ativo')
+    active = db.Column(db.Boolean, default=True)  # <-- Adicione esta linha
 
-    user = db.relationship('User', foreign_keys=[user_id])
-    gestor = db.relationship('User', foreign_keys=[gestor_id])
+    user = db.relationship('User', backref=db.backref('funcionario', uselist=False))
 
+    def __repr__(self):
+        return f'<Funcionario {self.user.nome}>'
 
 class Team(db.Model):
     __tablename__ = "teams"
@@ -69,43 +59,18 @@ class TeamMember(db.Model):
     time = db.relationship('Team', back_populates='membros')
     user = db.relationship('User')
 
-
-class Salary(db.Model):
-    __tablename__ = "salaries"
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
-    gestor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    valor = db.Column(db.Float, nullable=False)
-    moeda = db.Column(db.String(3), nullable=False, default='BRL')
-    data_inicio = db.Column(db.Date, nullable=False, default=date.today)
-
-    user = db.relationship(
-        'User',
-        foreign_keys=[user_id],
-        back_populates='salary'
-    )
-    gestor = db.relationship(
-        'User',
-        foreign_keys=[gestor_id]
-    )
-
-
-
-class Bonus(db.Model):
-    __tablename__ = "bonuses"
+class PromotionLog(db.Model):
+    __tablename__ = "promotions_logs"
 
     id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    cargo_anterior = db.Column(db.String(120), nullable=False)
+    salario_anterior = db.Column(db.Numeric(10, 2), nullable=False)
+    cargo_novo = db.Column(db.String(120), nullable=False)
+    salario_novo = db.Column(db.Numeric(10, 2), nullable=False)
+    data_promocao = db.Column(db.Date, nullable=False, default=date.today)
+    promovido_por_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    motivo = db.Column(db.Text)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    valor = db.Column(db.Float, nullable=False)
-    moeda = db.Column(db.String(3), nullable=False, default='BRL')
-    data = db.Column(db.Date, nullable=False, default=date.today)
-    motivo = db.Column(db.String(255), nullable=True)
-    observacao = db.Column(db.Text, nullable=True)
-
-    # Relacionamento de volta para User
-    user = db.relationship('User', back_populates='bonuses')
-
-    def __repr__(self):
-        return f"<Bonus user_id={self.user_id} valor={self.valor} {self.moeda} em {self.data}>"
+    employee = db.relationship('Employees', backref='historico_promocoes')
+    promovido_por = db.relationship('User')
