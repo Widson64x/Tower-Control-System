@@ -3,46 +3,85 @@
 {% block title %}Adicionar Funcionário | Tower Control{% endblock %}
 
 {% block content %}
-<h1 class="mb-4 fw-bold text-primary">Adicionar Funcionário</h1>
+<div class="card shadow border-0 mb-4 animate__animated animate__fadeInUp"> {# Adicionado animate.css #}
+    <div class="card-body p-4">
+        <h2 class="card-title mb-4 text-primary d-flex align-items-center">
+            <i class="bi bi-person-plus-fill me-3" style="font-size: 1.5em;"></i> Adicionar Novo Colaborador
+        </h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} animate__animated animate__fadeInDown" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="user_id" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle"></i> Selecione o Usuário
+                </label>
+                <select class="form-select" name="user_id" id="user_id" required>
+                    <option value="">Selecione...</option>
+                    {% for user in usuarios %}
+                        {# Exibe a imagem de perfil no select, se o navegador suportar customização #}
+                        {# Nota: A imagem não aparecerá diretamente no <option> em todos os navegadores, #}
+                        {# mas a informação está lá para futura customização com JS/CSS. #}
+                        <option value="{{ user.id }}" data-profile-img="{{ url_for('static', filename=user.profile_picture or 'imgs/uploads/picture/use_default.png') }}">
+                            {{ user.nome }} ({{ user.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Apenas usuários não associados a um funcionário ativo aparecerão aqui.</small>
+            </div>
+            <div class="mb-3">
+                <label for="data_entrada" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-date"></i> Data de Entrada
+                </label>
+                <input type="date" class="form-control" name="data_entrada" id="data_entrada" required>
+            </div>
+            <div class="mb-3">
+                <label for="cargo" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-briefcase"></i> Cargo
+                </label>
+                <select class="form-select" name="cargo" id="cargo" required>
+                    <option value="">Selecione...</option>
+                    <option value="Assistente I">Assistente I</option>
+                    <option value="Assistente II">Assistente II</option>
+                    <option value="Assistente III">Assistente III</option>
+                    <option value="Analista I">Analista I</option>
+                    <option value="Analista II">Analista II</option>
+                    <option value="Analista III">Analista III</option>
+                    <option value="Focal">Focal</option>
+                    <option value="Especialista">Especialista</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Coordenador">Coordenador</option>
+                    <option value="Gerente">Gerente</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="salario" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-currency-dollar"></i> Salário
+                </label>
+                <input type="text" class="form-control" name="salario" id="salario" placeholder="R$0,00" required>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary btn-lg animate__animated animate__pulse">
+                    <i class="bi bi-save"></i> Salvar Colaborador
+                </button>
+                <a href="{{ url_for('funcionarios.lista_funcionarios') }}" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="https://unpkg.com/imask"></script>
-
-<form method="POST">
-    <div class="mb-3">
-        <label class="form-label">Selecione o Usuário</label>
-        <select class="form-select" name="user_id" required>
-            <option value="">Selecione...</option>
-            {% for user in usuarios %}
-                <option value="{{ user.id }}">{{ user.nome }} ({{ user.email }})</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Data de Entrada</label>
-        <input type="date" class="form-control" name="data_entrada" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Cargo</label>
-            <select class="form-select" name="cargo" required>
-                <option value="">Selecione...</option>
-                <option value="Assistente I">Assistente I</option>
-                <option value="Assistente II">Assistente II</option>
-                <option value="Assistente III">Assistente III</option>
-                <option value="Analista I">Analista I</option>
-                <option value="Analista II">Analista II</option>
-                <option value="Analista III">Analista III</option>
-                <option value="Focal">Focal</option>
-                <option value="Especialista">Especialista</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Coordenador">Coordenador</option>
-                <option value="Gerente">Gerente</option>
-            </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Salário</label>
-        <input type="text" class="form-control" name="salario" id="salario" placeholder="R$0,00" required>
-    </div>
-
-    <script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
         const salarioElement = document.getElementById('salario');
         const maskOptions = {
             mask: 'R$ num',
@@ -52,16 +91,27 @@
                     scale: 2,
                     thousandsSeparator: '.',
                     radix: ',',
-                    mapToRadix: [','],  // Use apenas ',' como separador decimal
+                    mapToRadix: [','],
                     normalizeZeros: true,
                     padFractionalZeros: true
                 }
             },
-            lazy: false  // Força exibição do valor com casas decimais
+            lazy: false
         };
         IMask(salarioElement, maskOptions);
-    </script>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('funcionarios.lista_funcionarios') }}" class="btn btn-secondary">Cancelar</a>
-</form>
+
+        // Opcional: Adicionar um efeito visual ao selecionar o usuário
+        const userSelect = document.getElementById('user_id');
+        userSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const profileImgUrl = selectedOption.dataset.profileImg;
+            if (profileImgUrl) {
+                // Você pode exibir a imagem selecionada em algum lugar da UI aqui,
+                // como um pequeno avatar ao lado do select.
+                console.log('User selected:', selectedOption.textContent, 'Profile Image:', profileImgUrl);
+            }
+        });
+    });
+</script>
+
 {% endblock %}

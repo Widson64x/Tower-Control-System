@@ -1,55 +1,189 @@
 {% extends 'base.html' %}
 
-{% block title %}Gestão de Times{% endblock %}
+{% block title %}Gestão de Times | Tower Control{% endblock %}
+
+{% block extra_head %}
+{# Adicione animate.css para animações de entrada e outros efeitos #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    /* Estilo para a imagem de perfil (gestor) no card do time */
+    .team-gestor-profile-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid var(--primary-color); /* Borda da primary-color da Luft */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+    .team-gestor-profile-img:hover {
+        transform: scale(1.08); /* Efeito de zoom no hover */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Estilo para os cards de time */
+    .team-card {
+        transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        border-radius: var(--border-radius-lg) !important;
+        overflow: hidden; /* Garante que o border-radius seja aplicado */
+        border: 1px solid rgba(var(--primary-color), 0.15); /* Borda sutil */
+        background-color: var(--card-bg); /* Fundo do card */
+        display: flex; /* Para flexbox no conteúdo interno */
+        flex-direction: column; /* Conteúdo em coluna */
+    }
+    .team-card:hover {
+        transform: translateY(-8px); /* Elevação mais notável no hover */
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15); /* Sombra mais forte no hover */
+    }
+
+    /* Animação de entrada para os cards */
+    .team-card-item {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    /* Atrasos para animação em cascata */
+    .team-card-item:nth-child(2) { animation-delay: 0.1s; }
+    .team-card-item:nth-child(3) { animation-delay: 0.2s; }
+    .team-card-item:nth-child(4) { animation-delay: 0.3s; }
+    .team-card-item:nth-child(5) { animation-delay: 0.4s; }
+    /* Adicione mais seções :nth-child para mais atrasos, ou use JS para um atraso dinâmico */
+
+    /* Estilos do Modo Escuro para cards de time */
+    body[data-theme="dark"] .team-card {
+        background-color: var(--dark-mode-card-bg) !important;
+        border-color: var(--dark-mode-border-color) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;
+        color: var(--dark-mode-text-color) !important;
+    }
+    body[data-theme="dark"] .team-card:hover {
+        box-shadow: 0 12px 30px rgba(0,0,0,0.6) !important;
+    }
+    body[data-theme="dark"] .team-gestor-profile-img {
+        border-color: var(--dark-mode-text-color);
+    }
+    body[data-theme="dark"] .team-card .card-title {
+        color: var(--dark-mode-text-color) !important;
+        border-bottom-color: var(--dark-mode-border-color) !important;
+    }
+    body[data-theme="dark"] .team-card .text-muted {
+        color: rgba(var(--dark-mode-text-color), 0.7) !important;
+    }
+    body[data-theme="dark"] .badge.bg-primary { /* Ícone/badge ao lado do título */
+        background: var(--secondary-color) !important; /* Azul claro da Luft */
+        color: #fff !important;
+    }
+    body[data-theme="dark"] .badge.bg-info { /* Badge de membros ativos */
+        background: var(--secondary-color) !important; /* Azul claro da Luft */
+        color: #fff !important;
+    }
+    /* Badges específicos de status de time no modo escuro */
+    body[data-theme="dark"] .badge.bg-active-team {
+        background-color: var(--accent-color) !important;
+        color: var(--neutral-dark) !important; /* Texto escuro no verde */
+    }
+    body[data-theme="dark"] .badge.bg-inactive-team {
+        background-color: var(--neutral-dark) !important; /* Mantenha escuro para inativo */
+        color: #fff !important;
+    }
+
+    /* Botões outline dentro dos cards de time no modo escuro */
+    body[data-theme="dark"] .team-card .btn-outline-primary {
+        border-color: var(--secondary-color);
+        color: var(--secondary-color);
+    }
+    body[data-theme="dark"] .team-card .btn-outline-primary:hover {
+        background: var(--secondary-color);
+        color: #fff;
+    }
+    body[data-theme="dark"] .team-card .btn-outline-warning {
+        border-color: #ffc107;
+        color: #ffc107;
+    }
+    body[data-theme="dark"] .team-card .btn-outline-warning:hover {
+        background: #ffc107;
+        color: var(--neutral-dark);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-4 animate__animated animate__fadeIn">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold text-primary mb-0">
-            <i class="bi bi-people-fill"></i> Times da Empresa
+        <h1 class="fw-bold text-primary mb-0 animate__animated animate__fadeInDown">
+            <i class="bi bi-people-fill me-2"></i> Times da Empresa
         </h1>
-        <a href="{{ url_for('times.criar_time') }}" class="btn btn-success shadow">
-            <i class="bi bi-plus-circle"></i> Criar Novo Time
+        <a href="{{ url_for('times.criar_time') }}" class="btn btn-success btn-lg shadow-lg animate__animated animate__pulse">
+            <i class="bi bi-plus-circle me-2"></i> Criar Novo Time
         </a>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} animate__animated animate__fadeInDown" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div class="row g-4">
         {% for time in times %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-primary me-2" style="font-size:1rem;">
-                            <i class="bi bi-people"></i>
+        <div class="col-md-6 col-lg-4 team-card-item"> {# Adicionada classe para animação #}
+            <div class="card team-card shadow-lg h-100"> {# Usando shadow-lg para mais profundidade #}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary me-3 p-2 rounded-circle" style="font-size:1.1rem;">
+                            <i class="bi bi-person-bounding-box"></i> {# Ícone mais descritivo para o time #}
                         </span>
-                        <h5 class="card-title mb-0">{{ time.nome }}</h5>
+                        <h5 class="card-title mb-0 flex-grow-1">{{ time.nome }}</h5>
                     </div>
-                    <p class="mb-1 text-muted">
-                        <i class="bi bi-person-badge"></i>
-                        <strong>Gestor:</strong> {{ time.gestor.nome }}
+                    <p class="mb-2 text-muted small">
+                        <i class="bi bi-briefcase me-1"></i>
+                        <strong class="text-{{ 'primary' if not (request.endpoint and 'dark' in request.endpoint) else 'light' }}">Gestor:</strong> 
+                        {% if time.gestor %}
+                            <img src="{{ url_for('static', filename=time.gestor.profile_picture or 'imgs/uploads/picture/use_default.png') }}" 
+                                 class="team-gestor-profile-img ms-2" 
+                                 alt="Foto de {{ time.gestor.nome }}"
+                                 title="{{ time.gestor.nome }}">
+                            {{ time.gestor.nome }}
+                        {% else %}
+                            Não Atribuído
+                        {% endif %}
                     </p>
-                    <p class="mb-1">
-                        <span class="badge bg-{{ 'success' if time.status == 'ativo' else 'secondary' }}">
+                    <p class="mb-2">
+                        <span class="badge bg-{{ 'active-team' if time.status == 'ativo' else 'inactive-team' }} fs-6">
                             {{ time.status|capitalize }}
                         </span>
                     </p>
-                    <p class="mb-2">
-                        <i class="bi bi-people"></i>
-                        <strong>Membros ativos:</strong>
-                        <span class="badge bg-info text-dark">
+                    <p class="mb-3 text-muted small">
+                        {{ time.descricao|truncate(70, True) or 'Nenhuma descrição fornecida.' }}
+                    </p>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-people-fill me-2 fs-5 text-secondary"></i>
+                        <strong class="me-2 text-{{ 'primary' if not (request.endpoint and 'dark' in request.endpoint) else 'light' }}">Membros Ativos:</strong>
+                        <span class="badge bg-info text-white fs-6">
                             {{ time.membros | selectattr('status', 'equalto', 'ativo') | list | length }}
                         </span>
-                    </p>
-                    <a href="{{ url_for('times.detalhes_time', time_id=time.id) }}" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-eye"></i> Detalhes do Time
-                    </a>
-                    <a href="{{ url_for('times.editar_time', time_id=time.id) }}" class="btn btn-outline-warning w-100">
-                        <i class="bi bi-pencil-square"></i> Editar Time
-                    </a>
+                    </div>
+
+                    <div class="mt-auto d-grid gap-2"> {# mt-auto para empurrar botões para baixo #}
+                        <a href="{{ url_for('times.detalhes_time', time_id=time.id) }}" class="btn btn-outline-primary btn-lg shadow-sm">
+                            <i class="bi bi-eye me-2"></i> Ver Detalhes
+                        </a>
+                        <a href="{{ url_for('times.editar_time', time_id=time.id) }}" class="btn btn-outline-warning btn-lg shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i> Editar Time
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    {% if not times %}
+        <div class="alert alert-info text-center animate__animated animate__fadeIn mt-5" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i> Nenhum time encontrado. Que tal criar o primeiro?
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

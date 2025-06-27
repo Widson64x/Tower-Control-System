@@ -1,75 +1,198 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes do Time{% endblock %}
+{% block title %}Detalhes do Time | Tower Control{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    /* Estilo para a imagem de perfil do membro na galeria/grid */
+    .member-gallery-profile-img {
+        width: 60px; /* Um pouco maior para destaque */
+        height: 60px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid var(--secondary-color); /* Borda da secondary-color da Luft */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+    .member-gallery-profile-img:hover {
+        transform: scale(1.15); /* Zoom mais pronunciado no hover */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    }
+
+    /* Estilo para o card de cada membro */
+    .member-card {
+        transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        border-radius: var(--border-radius-base) !important;
+        border: 1px solid rgba(var(--primary-color), 0.1);
+        background-color: var(--card-bg);
+        text-align: center;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .member-card:hover {
+        transform: translateY(-5px); /* Elevação sutil no hover */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Animação de entrada para os cards de membros */
+    .member-card-item {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+    .member-card-item:nth-child(2) { animation-delay: 0.05s; }
+    .member-card-item:nth-child(3) { animation-delay: 0.1s; }
+    .member-card-item:nth-child(4) { animation-delay: 0.15s; }
+    .member-card-item:nth-child(5) { animation-delay: 0.2s; }
+    /* Adicione mais seções :nth-child para mais atrasos */
+
+    /* Estilos do Modo Escuro para a seção de detalhes e membros */
+    body[data-theme="dark"] .team-detail-card-header {
+        color: var(--dark-mode-text-color) !important;
+        border-bottom-color: var(--dark-mode-border-color) !important;
+    }
+    body[data-theme="dark"] .team-detail-card-body {
+        background-color: var(--dark-mode-card-bg) !important;
+        color: var(--dark-mode-text-color) !important;
+        border-color: var(--dark-mode-border-color) !important;
+    }
+    body[data-theme="dark"] .member-gallery-profile-img {
+        border-color: var(--dark-mode-text-color);
+        box-shadow: 0 2px 10px rgba(255,255,255,0.1);
+    }
+    body[data-theme="dark"] .member-gallery-profile-img:hover {
+        box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+    }
+    body[data-theme="dark"] .member-card {
+        background-color: var(--dark-mode-card-bg) !important;
+        border-color: var(--dark-mode-border-color) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+        color: var(--dark-mode-text-color) !important;
+    }
+    body[data-theme="dark"] .member-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5) !important;
+    }
+    body[data-theme="dark"] .member-card h6 {
+        color: var(--dark-mode-text-color) !important;
+    }
+    body[data-theme="dark"] .member-card .text-muted {
+        color: rgba(var(--dark-mode-text-color), 0.7) !important;
+    }
+    body[data-theme="dark"] .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    body[data-theme="dark"] .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card shadow border-0 mb-4">
-        <div class="card-body">
-            <h2 class="fw-bold text-primary mb-2">
-                <i class="bi bi-people"></i> {{ time.nome }}
-            </h2>
-            <p class="mb-1">
-                <i class="bi bi-person-badge"></i>
-                <strong>Gestor:</strong> {{ time.gestor.nome }}
-            </p>
-            <p class="mb-1">
-                <span class="badge bg-{{ 'success' if time.status == 'ativo' else 'secondary' }}">
+<div class="container py-4 animate__animated animate__fadeIn">
+    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary btn-sm mb-4 animate__animated animate__fadeInLeft">
+        <i class="bi bi-arrow-left me-2"></i> Voltar para Times
+    </a>
+
+    <div class="card shadow border-0 mb-4 animate__animated animate__fadeInUp team-detail-card-body">
+        <div class="card-body p-4">
+            <h2 class="fw-bold text-primary mb-3 d-flex align-items-center team-detail-card-header">
+                <i class="bi bi-diagram-3-fill me-3" style="font-size: 1.5em;"></i> Detalhes do Time: {{ time.nome }}
+                <span class="badge bg-{{ 'active-team' if time.status == 'ativo' else 'inactive-team' }} ms-auto fs-6">
                     {{ time.status|capitalize }}
                 </span>
-            </p>
-            <p class="mb-1">
-                <i class="bi bi-card-text"></i>
-                <strong>Descrição:</strong> {{ time.descricao or 'Sem descrição' }}
-            </p>
+            </h2>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p class="mb-1 fw-bold">
+                        <i class="bi bi-person-badge me-2 text-info"></i> Gestor: 
+                        {% if time.gestor %}
+                            <img src="{{ url_for('static', filename=time.gestor.profile_picture or 'imgs/uploads/picture/use_default.png') }}" 
+                                 class="team-gestor-profile-img ms-2 me-2" 
+                                 alt="Foto de {{ time.gestor.nome }}"
+                                 title="{{ time.gestor.nome }}">
+                            {{ time.gestor.nome }}
+                        {% else %}
+                            Não Atribuído
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 fw-bold">
+                        <i class="bi bi-card-text me-2 text-info"></i> Descrição:
+                    </p>
+                    <p class="text-muted small">{{ time.descricao or 'Nenhuma descrição fornecida para este time.' }}</p>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('times.editar_time', time_id=time.id) }}" class="btn btn-warning btn-lg shadow-sm">
+                    <i class="bi bi-pencil-square me-2"></i> Editar Time
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-5 animate__animated animate__fadeInUp">
         <h3 class="fw-bold text-secondary mb-0">
-            <i class="bi bi-person-lines-fill"></i> Membros do Time
+            <i class="bi bi-person-lines-fill me-2"></i> Membros Ativos do Time ({{ time.membros | selectattr('status', 'equalto', 'ativo') | list | length }})
         </h3>
-        <a href="{{ url_for('times.adicionar_membro', time_id=time.id) }}" class="btn btn-success shadow">
-            <i class="bi bi-person-plus"></i> Adicionar Funcionário
+        <a href="{{ url_for('times.adicionar_membro', time_id=time.id) }}" class="btn btn-success btn-lg shadow-sm animate__animated animate__pulse">
+            <i class="bi bi-person-plus me-2"></i> Adicionar Membro
         </a>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle shadow-sm">
-            <thead class="table-light">
-                <tr>
-                    <th>Funcionário</th>
-                    <th>Responsabilidade</th>
-                    <th>Data de Entrada</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for membro in time.membros %}
-                {% if membro.status == 'ativo' %}
-                <tr>
-                    <td>
-                        <i class="bi bi-person-circle text-primary"></i>
-                        {{ membro.user.nome }}
-                    </td>
-                    <td>{{ membro.responsabilidade or '—' }}</td>
-                    <td>{{ membro.data_entrada.strftime('%d/%m/%Y') if membro.data_entrada else '—' }}</td>
-                    <td>
-                        <span class="badge bg-success">Ativo</span>
-                    </td>
-                    <td>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} animate__animated animate__fadeInDown" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% set active_members = time.membros | selectattr('status', 'equalto', 'ativo') | list %}
+    {% if active_members %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> {# Grid de cards para membros #}
+            {% for membro in active_members %}
+            <div class="col member-card-item"> {# Adicionada classe para animação #}
+                <div class="card member-card h-100">
+                    <div class="card-body">
+                        <img src="{{ url_for('static', filename=membro.user.profile_picture or 'imgs/uploads/picture/use_default.png') }}" 
+                             class="member-gallery-profile-img mb-3" 
+                             alt="Foto de {{ membro.user.nome }}"
+                             title="{{ membro.user.nome }}">
+                        <h6 class="mb-1 fw-bold">{{ membro.user.nome }}</h6>
+                        <p class="text-muted small mb-2">{{ membro.user.email }}</p>
+                        <p class="mb-1">
+                            <small class="fw-bold"><i class="bi bi-tag me-1"></i>Responsabilidade:</small>
+                            <br>{{ membro.responsabilidade or 'Não definida' }}
+                        </p>
+                        <p class="mb-2">
+                            <small class="fw-bold"><i class="bi bi-calendar-check me-1"></i>Entrada:</small>
+                            <br>{{ membro.data_entrada.strftime('%d/%m/%Y') if membro.data_entrada else 'Não definida' }}
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0">
                         <a href="{{ url_for('times.remover_membro', membro_id=membro.id) }}"
-                           class="btn btn-outline-danger btn-sm"
-                           onclick="return confirm('Remover este funcionário do time?');">
-                           <i class="bi bi-trash"></i> Remover
+                           class="btn btn-outline-danger btn-sm w-100"
+                           onclick="return confirm('Remover {{ membro.user.nome }} do time?');"
+                           title="Remover do Time">
+                           <i class="bi bi-person-dash-fill me-2"></i> Remover
                         </a>
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center animate__animated animate__fadeIn mt-5" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i> Este time ainda não possui membros ativos.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

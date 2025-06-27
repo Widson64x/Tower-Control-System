@@ -1,31 +1,60 @@
 {% extends 'base.html' %}
 
-{% block title %}Editar Time{% endblock %}
+{% block title %}Editar Time | Tower Control{% endblock %}
 
 {% block content %}
-<h1 class="mb-4 fw-bold text-primary">Editar Time {{ time.nome }}</h1>
+<div class="card shadow border-0 mx-auto animate__animated animate__fadeInUp" style="max-width: 550px;">
+    <div class="card-body p-4">
+        <h2 class="card-title mb-4 text-primary d-flex align-items-center">
+            <i class="bi bi-pencil-square me-3" style="font-size: 1.5em;"></i> Editar Time: {{ time.nome }}
+        </h2>
 
-<form method="POST">
-    <div class="mb-3">
-        <label class="form-label">Nome do Time</label>
-        <input type="text" name="nome" class="form-control" value="{{ time.nome }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Descrição</label>
-        <textarea name="descricao" class="form-control">{{ time.descricao }}</textarea>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Gestor do Time</label>
-        <select name="gestor_id" class="form-select" required>
-            {% for gestor in gestores %}
-                <option value="{{ gestor.id }}" {% if gestor.id == time.gestor_id %}selected{% endif %}>
-                    {{ gestor.nome }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} animate__animated animate__fadeInDown" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    <button type="submit" class="btn btn-success">Salvar Alterações</button>
-    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary">Cancelar</a>
-</form>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="nome" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-card-heading"></i> Nome do Time
+                </label>
+                <input type="text" name="nome" id="nome" class="form-control" value="{{ time.nome }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="descricao" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-text-paragraph"></i> Descrição
+                </label>
+                <textarea name="descricao" id="descricao" class="form-control" rows="3">{{ time.descricao }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="gestor_id" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-person-badge"></i> Gestor do Time
+                </label>
+                <select name="gestor_id" id="gestor_id" class="form-select" required>
+                    <option value="">Selecione um gestor...</option>
+                    {% for gestor in gestores %}
+                        <option value="{{ gestor.id }}" 
+                                {% if gestor.id == time.gestor_id %}selected{% endif %}
+                                data-profile-img="{{ url_for('static', filename=gestor.profile_picture or 'imgs/uploads/picture/use_default.png') }}">
+                            {{ gestor.nome }} ({{ gestor.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary btn-lg animate__animated animate__pulse">
+                    <i class="bi bi-save me-2"></i> Salvar Alterações
+                </button>
+                <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

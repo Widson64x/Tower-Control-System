@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <a href="{{ url_for('feedbacks.dashboard_feedbacks') }}" class="btn btn-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left"></i> Voltar para Painel de Feedbacks
+        </a>
+        <h2 class="mb-3">Feedbacks para {{ funcionario.user.nome }} ({{ funcionario.cargo }})</h2>
+        <p class="lead">Média Geral dos Feedbacks: <strong>{{ "%.2f"|format(media_feedbacks) if media_feedbacks is not none else 'N/A' }}</strong></p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('feedbacks.dar_feedback', employee_id=funcionario.id) }}" class="btn btn-success mb-3"><i class="bi bi-plus-circle"></i> Dar Novo Feedback</a>
+
+        {% if feedbacks %}
+            <div class="accordion" id="accordionFeedbacks">
+                {% for feedback in feedbacks %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ loop.index }}">
+                            <button class="accordion-button {% if loop.first %} {% else %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ loop.index }}">
+                                Feedback de **{{ feedback.giver.nome }}** em {{ feedback.data_feedback.strftime('%d/%m/%Y %H:%M') }} 
+                                {% if feedback.tipo_feedback %} - <span class="badge bg-primary">{{ feedback.tipo_feedback }}</span>{% endif %}
+                                {% if feedback.pontuacao_geral is not none %} - Pontuação: <span class="badge bg-secondary">{{ "%.2f"|format(feedback.pontuacao_geral) }}</span>{% endif %}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#accordionFeedbacks">
+                            <div class="accordion-body">
+                                <strong>Descrição:</strong>
+                                <p>{{ feedback.descricao }}</p>
+
+                                {# --- EXIBE OS KPIS DINÂMICOS DO JSONB --- #}
+                                {% if feedback.kpis %}
+                                    <div class="mb-3">
+                                        {% if feedback.kpis.qualidades %}
+                                            <h6><i class="bi bi-patch-check text-success"></i> Qualidades:</h6>
+                                            <ul class="list-group list-group-flush mb-2">
+                                                {% for nome, nivel in feedback.kpis.qualidades.items() %}
+                                                    <li class="list-group-item">{{ nome }}: {{ "%.2f"|format(nivel) }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                        
+                                        {% if feedback.kpis.defeitos %}
+                                            <h6><i class="bi bi-patch-minus text-danger"></i> Defeitos:</h6>
+                                            <ul class="list-group list-group-flush mb-2">
+                                                {% for nome, nivel in feedback.kpis.defeitos.items() %}
+                                                    <li class="list-group-item">{{ nome }}: {{ "%.2f"|format(nivel) }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                        
+                                        {% if not feedback.kpis.qualidades and not feedback.kpis.defeitos %}
+                                            <p class="text-muted">Nenhum KPI específico avaliado neste feedback.</p>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">Nenhum KPI específico avaliado neste feedback.</p>
+                                {% endif %}
+                                {# ------------------------------------- #}
+
+                                <div class="d-flex justify-content-end">
+                                    {% if feedback.giver_id == current_user.id or current_user.tipo == 'administrador' %}
+                                        <a href="{{ url_for('feedbacks.editar_feedback', feedback_id=feedback.id) }}" class="btn btn-warning btn-sm me-2"><i class="bi bi-pencil"></i> Editar</a>
+                                        <form action="{{ url_for('feedbacks.deletar_feedback', feedback_id=feedback.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja deletar este feedback?');">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Deletar</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Este funcionário ainda não possui feedbacks registrados.</p>
+        {% endif %}
+    </div>
+{% endblock %}

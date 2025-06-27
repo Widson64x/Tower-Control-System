@@ -1,6 +1,7 @@
 from .extensions import db
 from flask_login import UserMixin
 from datetime import datetime, date
+from sqlalchemy.dialects.postgresql import JSONB # Importe JSONB para dados semi-estruturados
 
 class User(db.Model, UserMixin):
     __tablename__ = "users"
@@ -25,7 +26,7 @@ class Employees(db.Model):
     media_feedbacks = db.Column(db.Numeric(3, 2), default=0.0)
     data_entrada = db.Column(db.Date, default=date.today)
     status = db.Column(db.String(50), default='Ativo')
-    active = db.Column(db.Boolean, default=True)  # <-- Adicione esta linha
+    active = db.Column(db.Boolean, default=True)
 
     user = db.relationship('User', backref=db.backref('funcionario', uselist=False))
 
@@ -74,3 +75,21 @@ class PromotionLog(db.Model):
 
     employee = db.relationship('Employees', backref='historico_promocoes')
     promovido_por = db.relationship('User')
+
+# Novo modelo para Feedback
+class Feedback(db.Model):
+    __tablename__ = "feedbacks"
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    giver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    data_feedback = db.Column(db.DateTime, default=datetime.utcnow)
+    descricao = db.Column(db.Text, nullable=False)
+    kpis = db.Column(JSONB) # Armazenar KPIs como um dicionário JSON
+    tipo_feedback = db.Column(db.String(50)) # Ex: "positivo", "construtivo", "avaliação"
+    pontuacao_geral = db.Column(db.Numeric(3, 2)) # Pontuação de 0 a 5, por exemplo
+
+    employee = db.relationship('Employees', backref='feedbacks')
+    giver = db.relationship('User', foreign_keys=[giver_id])
+
+    def __repr__(self):
+        return f'<Feedback {self.id} para {self.employee.user.nome}>'

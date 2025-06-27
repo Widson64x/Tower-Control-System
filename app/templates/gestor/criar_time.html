@@ -1,42 +1,59 @@
 {% extends 'base.html' %}
 
-{% block title %}Criar Time{% endblock %}
+{% block title %}Criar Time | Tower Control{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card shadow border-0 mx-auto" style="max-width: 500px;">
-        <div class="card-body">
-            <h2 class="fw-bold text-primary mb-4">
-                <i class="bi bi-plus-circle"></i> Criar Novo Time
-            </h2>
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Nome do Time</label>
-                    <input type="text" name="nome" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Descrição</label>
-                    <textarea name="descricao" class="form-control"></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Gestor do Time</label>
-                    <select name="gestor_id" class="form-select" required>
-                        <option value="">Selecione...</option>
-                        {% for gestor in gestores %}
-                            <option value="{{ gestor.id }}">{{ gestor.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Criar Time
-                    </button>
-                    <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Cancelar
-                    </a>
-                </div>
-            </form>
-        </div>
+<div class="card shadow border-0 mx-auto animate__animated animate__fadeInUp" style="max-width: 550px;">
+    <div class="card-body p-4">
+        <h2 class="card-title mb-4 text-primary d-flex align-items-center">
+            <i class="bi bi-plus-circle-fill me-3" style="font-size: 1.5em;"></i> Criar Novo Time
+        </h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} animate__animated animate__fadeInDown" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="nome" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-card-heading"></i> Nome do Time
+                </label>
+                <input type="text" name="nome" id="nome" class="form-control" required placeholder="Ex: Time de Desenvolvimento A">
+            </div>
+            <div class="mb-3">
+                <label for="descricao" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-text-paragraph"></i> Descrição
+                </label>
+                <textarea name="descricao" id="descricao" class="form-control" rows="3" placeholder="Objetivo do time, principais responsabilidades..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="gestor_id" class="form-label d-flex align-items-center gap-2">
+                    <i class="bi bi-person-badge"></i> Gestor do Time
+                </label>
+                <select name="gestor_id" id="gestor_id" class="form-select" required>
+                    <option value="">Selecione um gestor...</option>
+                    {% for gestor in gestores %}
+                        <option value="{{ gestor.id }}" data-profile-img="{{ url_for('static', filename=gestor.profile_picture or 'imgs/uploads/picture/use_default.png') }}">
+                            {{ gestor.nome }} ({{ gestor.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Apenas usuários com permissão de gestão aparecerão aqui.</small>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary btn-lg animate__animated animate__pulse">
+                    <i class="bi bi-check-circle me-2"></i> Criar Time
+                </button>
+                <a href="{{ url_for('times.times_list') }}" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i> Cancelar
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

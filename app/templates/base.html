@@ -4,103 +4,546 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tower Control System{% endblock %}</title>
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Cores Principais - Inspiradas na Luft Logistics */
+            --primary-color: #004282; /* Azul escuro corporativo da Luft */
+            --secondary-color: #0077C8; /* Azul claro/ciano, cor de destaque da Luft */
+            --accent-color: #00BF63; /* Um verde vibrante para acentuação, remetendo ao dinamismo e crescimento */
+            --neutral-light: #F0F4F8; /* Cinza muito claro, quase branco, para fundos suaves */
+            --neutral-dark: #333333; /* Cinza escuro para texto principal */
+
+            /* Gradientes de Fundo */
+            --gradient-bg-start: #001E40;
+            --gradient-bg-mid: #004C99;
+            --gradient-bg-end: #0077C8;
+
+            /* Gradientes da Navbar */
+            --gradient-navbar-start: #004282;
+            --gradient-navbar-end: #0077C8;
+
+            /* Estilos de Componentes */
+            --card-bg: rgba(255,255,255,0.98);
+            
+            /* Sombras - Ajustadas para as novas cores */
+            --shadow-light: 0 8px 40px 0 rgba(0, 66, 130, 0.15), 0 1.5px 8px 0 rgba(0, 0, 0, 0.1);
+            --shadow-btn: 0 4px 15px rgba(0, 119, 200, 0.3);
+
+            /* Dimensões e Transições */
+            --border-radius-base: 0.8rem;
+            --border-radius-lg: 1.2rem;
+            --transition-speed: 0.3s;
+
+            /* Variáveis para o Modo Escuro */
+            --dark-mode-bg: #1a202c; /* Fundo geral do corpo em modo escuro */
+            --dark-mode-card-bg: #2d3748; /* Fundo de cards, modais em modo escuro */
+            --dark-mode-text-color: #e2e8f0; /* Cor do texto em modo escuro */
+            --dark-mode-border-color: rgba(255, 255, 255, 0.1); /* Borda em modo escuro */
+        }
+
         html, body {
             font-family: 'Inter', Arial, sans-serif;
-            background-color: var(--bs-body-bg);
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: var(--neutral-dark); /* Ajuste para usar neutral-dark */
+            background: linear-gradient(135deg, var(--gradient-bg-start) 0%, var(--gradient-bg-mid) 60%, var(--gradient-bg-end) 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.08) 0%, transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(255,255,255,0.08) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+            animation: moveGradient 20s infinite alternate;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 0%, 100% 100%; }
+            100% { background-position: 100% 100%, 0% 0%; }
+        }
+
         .navbar {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            background: linear-gradient(90deg, #232a38 70%, #2c3e50 100%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background: linear-gradient(90deg, var(--gradient-navbar-start) 70%, var(--gradient-navbar-end) 100%);
+            border-bottom: 2px solid rgba(var(--secondary-color), 0.2);
+            transition: background-color var(--transition-speed) ease;
         }
         .navbar-brand {
             letter-spacing: 0.04em;
-            font-size: 1.28rem;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 5px rgba(var(--secondary-color), 0.5);
         }
+        .navbar-brand i {
+            color: var(--accent-color);
+            font-size: 1.7em;
+            transition: transform 0.3s ease;
+        }
+        .navbar-brand:hover i {
+            transform: rotate(5deg) scale(1.05);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.85) !important;
+            font-weight: 600;
+            padding: 0.6rem 1.0rem;
+            border-radius: var(--border-radius-base);
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background-color: rgba(var(--secondary-color), 0.15);
+            transform: translateY(-2px);
+        }
+        .nav-link.active {
+            color: #fff !important;
+            background-color: rgba(var(--secondary-color), 0.3);
+        }
+
         .profile-img-nav {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 6px 0 #1d4ed833;
-            transition: box-shadow .15s, border-color .15s;
+            border: 3px solid rgba(255,255,255,0.9);
+            box-shadow: 0 0 8px 0 rgba(var(--secondary-color), 0.4);
+            transition: all var(--transition-speed) ease-out;
         }
         .profile-img-nav:hover, .profile-img-nav:focus {
-            border-color: #4facfe;
-            box-shadow: 0 0 16px 0 #4facfe33;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 18px 0 rgba(var(--secondary-color), 0.6);
+            transform: scale(1.05);
         }
         .dropdown-menu {
-            min-width: 195px;
-            border-radius: 1rem;
-            box-shadow: 0 4px 18px #1d4ed822;
+            min-width: 220px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             margin-top: .8rem !important;
-            animation: menuFadeIn .2s;
+            animation: menuFadeIn .25s ease-out forwards;
+            background-color: var(--card-bg);
+            border: none;
         }
         @keyframes menuFadeIn {
-            from { opacity: 0; transform: translateY(6px);}
-            to   { opacity: 1; transform: translateY(0);}
+            from { opacity: 0; transform: translateY(10px);}
+            to   { opacity: 1; transform: translateY(0);}
+        }
+        .dropdown-item {
+            color: var(--neutral-dark); /* Ajuste para usar neutral-dark */
+            padding: 0.6rem 1.2rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(var(--secondary-color), 0.1);
+            color: var(--secondary-color);
         }
         .dropdown-item i {
-            width: 1.3em;
-            opacity: .8;
+            width: 1.5em;
+            opacity: .9;
+            color: var(--neutral-dark); /* Ajuste para usar neutral-dark */
+            transition: color 0.2s ease;
         }
+        .dropdown-item:hover i {
+            color: var(--secondary-color);
+        }
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .dropdown-item.text-danger i {
+            color: #dc3545;
+        }
+
         .container-main {
-            max-width: 960px;
-            margin: 32px auto 0 auto;
-            padding: 2.1rem 2rem;
-            background: var(--bs-light, #fff);
-            border-radius: 1.2rem;
-            box-shadow: 0 4px 32px 0 rgba(0,0,0,0.07);
+            max-width: 1080px;
+            margin: 40px auto 0 auto;
+            padding: 2.5rem 2.5rem;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(var(--primary-color), 0.1);
+            animation: fadeInScale 0.6s ease-out forwards;
         }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         .alert {
-            border-radius: 0.7rem;
+            border-radius: var(--border-radius-base);
+            border: 1px solid;
+            padding: 1rem 1.25rem;
+            font-weight: 500;
+            animation: slideInFromTop 0.4s ease-out;
         }
-        @media (max-width: 700px) {
-            .container-main { padding: 1rem;}
-            .navbar-brand { font-size: 1rem;}
+        .alert-info { background-color: rgba(var(--secondary-color), 0.1); border-color: rgba(var(--secondary-color), 0.4); color: #0b5ed7; }
+        .alert-success { background-color: rgba(var(--accent-color), 0.2); border-color: rgba(var(--accent-color), 0.5); color: #198754; }
+        .alert-danger { background-color: rgba(220, 53, 69, 0.1); border-color: rgba(220, 53, 69, 0.4); color: #721c24; }
+        .alert-warning { background-color: rgba(255, 193, 7, 0.1); border-color: rgba(255, 193, 7, 0.4); color: #856404; }
+
+        @keyframes slideInFromTop {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-primary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-secondary, .btn-outline-success, .btn-outline-danger {
+            border-radius: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            padding: 0.6rem 1.2rem;
+            transition: all var(--transition-speed) ease-out;
+            border: none;
+            box-shadow: var(--shadow-btn);
+            color: #fff;
+        }
+        .btn-primary { background: var(--primary-color); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(var(--primary-color), 0.5); background-position: right center; }
+
+        .btn-success { background: var(--accent-color); color: var(--neutral-dark); } /* Ajuste para neutral-dark */
+        .btn-success:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(var(--accent-color), 0.5); background-position: right center; color: var(--neutral-dark); } /* Ajuste para neutral-dark */
+
+        .btn-info { background: var(--secondary-color); }
+        .btn-info:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(var(--secondary-color), 0.5); background-position: right center; }
+
+        .btn-warning { background: #ffc107; color: var(--neutral-dark); } /* Ajuste para neutral-dark */
+        .btn-warning:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5); }
+
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5); }
+
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .btn-secondary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(108, 117, 125, 0.5); }
+
+        .btn-outline-success { border: 2px solid var(--accent-color); color: var(--accent-color); background: transparent; }
+        .btn-outline-success:hover { background: var(--accent-color); color: var(--neutral-dark); transform: translateY(-3px); } /* Ajuste para neutral-dark */
+        .btn-outline-danger { border: 2px solid #dc3545; color: #dc3545; background: transparent; }
+        .btn-outline-danger:hover { background: #dc3545; color: #fff; transform: translateY(-3px); }
+
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color); /* Ajuste para secondary-color */
+            box-shadow: 0 0 0 0.25rem rgba(var(--secondary-color), 0.25); /* Ajuste para secondary-color */
+        }
+
+        .badge.bg-primary { background: var(--primary-color) !important; border: none; color: #fff !important; }
+        .badge.bg-secondary { background: #6c757d !important; border: none; color: #fff !important; }
+        .badge.bg-success { background: var(--accent-color) !important; border: none; color: var(--neutral-dark) !important; } /* Ajuste para neutral-dark */
+
+
+        .accordion-button:not(.collapsed) {
+            background: rgba(var(--primary-color), 0.1);
+            color: var(--primary-color);
+            font-weight: 700;
+            border-bottom: 1px solid rgba(var(--primary-color), 0.2);
+        }
+        .accordion-item {
+            border-radius: var(--border-radius-lg) !important;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 66, 130, 0.08);
+            border: 1px solid rgba(var(--primary-color), 0.1);
+            overflow: hidden;
+        }
+        .accordion-header {
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        }
+        .accordion-body {
+            background-color: #fff;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            color: var(--neutral-dark); /* Ajuste para neutral-dark */
+        }
+
+        .list-group-item {
+            background: transparent;
+            border: none;
+            padding-left: 0;
+            color: var(--neutral-dark); /* Ajuste para neutral-dark */
+        }
+
+        .table {
+            --bs-table-color: var(--neutral-dark); /* Ajuste para neutral-dark */
+            --bs-table-bg: transparent;
+            --bs-table-border-color: rgba(var(--primary-color), 0.1);
+        }
+        .table-hover tbody tr:hover {
+            --bs-table-accent-bg: rgba(var(--primary-color), 0.05);
+            color: var(--neutral-dark); /* Ajuste para neutral-dark */
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(var(--primary-color), 0.03);
+        }
+        /* Cor de fundo padrão da thead para tabelas escuras */
+        .table-dark {
+            --bs-table-color: #fff;
+            --bs-table-bg: var(--primary-color); /* Usar o azul escuro da Luft */
+            --bs-table-border-color: rgba(255,255,255,0.2);
+        }
+        .table-dark th {
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            font-weight: 700;
+        }
+        .table-dark tbody tr:nth-of-type(odd) {
+            background-color: rgba(var(--primary-color), 0.9); /* Azul escuro um pouco mais claro */
+        }
+        .table-dark tbody tr:hover {
+            --bs-table-accent-bg: rgba(var(--secondary-color), 0.2); /* Azul claro no hover */
+        }
+
+
+        .card {
+            border: 1px solid rgba(var(--primary-color), 0.15);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 6px 20px rgba(0, 66, 130, 0.08);
+            background-color: var(--card-bg);
+        }
+        .card-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 2px solid rgba(var(--primary-color), 0.1);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.5rem !important;
+        }
+        .card-title .text-primary { color: var(--primary-color) !important; }
+        .card-title .text-warning { color: #ffc107 !important; } /* Manter warning como laranja para edição */
+
+        /* Estilos do Modo Escuro */
+        body[data-theme="dark"] {
+            background: var(--dark-mode-bg) !important;
+            color: var(--dark-mode-text-color) !important;
+            background-image: none !important; /* Desativa o gradiente de fundo padrão */
+            background-attachment: fixed !important;
+        }
+        body[data-theme="dark"]::before {
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.02) 0%, transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(255,255,255,0.02) 0%, transparent 30%);
+        }
+        body[data-theme="dark"] .navbar {
+            background: #222 !important; /* Azul escuro mais neutro para navbar */
+            border-bottom-color: rgba(255,255,255,0.1) !important;
+        }
+        body[data-theme="dark"] .navbar-brand { color: #fff !important; }
+        body[data-theme="dark"] .nav-link { color: rgba(255,255,255,0.7) !important; }
+        body[data-theme="dark"] .nav-link:hover { background-color: rgba(255,255,255,0.08) !important; color: #fff !important; }
+        body[data-theme="dark"] .nav-link.active { background-color: rgba(255,255,255,0.15) !important; }
+        body[data-theme="dark"] .profile-img-nav { border-color: rgba(255,255,255,0.7) !important; box-shadow: 0 0 8px 0 rgba(255,255,255,0.2) !important; }
+        body[data-theme="dark"] .profile-img-nav:hover { border-color: #fff !important; box-shadow: 0 0 18px 0 rgba(255,255,255,0.4) !important; }
+
+        body[data-theme="dark"] .dropdown-menu {
+            background-color: var(--dark-mode-card-bg) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;
+        }
+        body[data-theme="dark"] .dropdown-item { color: var(--dark-mode-text-color) !important; }
+        body[data-theme="dark"] .dropdown-item:hover { background-color: rgba(255,255,255,0.1) !important; color: #fff !important; }
+        body[data-theme="dark"] .dropdown-item i { color: var(--dark-mode-text-color) !important; }
+        body[data-theme="dark"] .dropdown-item:hover i { color: #fff !important; }
+        body[data-theme="dark"] .dropdown-divider { border-top-color: rgba(255,255,255,0.1) !important; }
+
+        body[data-theme="dark"] .container-main,
+        body[data-theme="dark"] .card,
+        body[data-theme="dark"] .accordion-body {
+            background: var(--dark-mode-card-bg) !important;
+            border-color: var(--dark-mode-border-color) !important;
+            color: var(--dark-mode-text-color) !important;
+        }
+        body[data-theme="dark"] .table {
+            --bs-table-color: var(--dark-mode-text-color);
+            --bs-table-border-color: rgba(255,255,255,0.1);
+        }
+        body[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(255,255,255,0.03);
+        }
+        body[data-theme="dark"] .table-hover tbody tr:hover {
+            --bs-table-accent-bg: rgba(255,255,255,0.08);
+        }
+        body[data-theme="dark"] .table-dark {
+            --bs-table-color: var(--dark-mode-text-color);
+            --bs-table-bg: var(--dark-mode-bg); /* Fundo da tabela escura em modo escuro */
+            --bs-table-border-color: rgba(255,255,255,0.2);
+        }
+        body[data-theme="dark"] .table-dark th {
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+        body[data-theme="dark"] .table-dark tbody tr:nth-of-type(odd) {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+
+        body[data-theme="dark"] .card-title {
+            border-bottom-color: var(--dark-mode-border-color) !important;
+            color: var(--dark-mode-text-color) !important;
+        }
+        body[data-theme="dark"] .card-title .text-primary { color: var(--primary-color) !important; } /* Mantém a cor da marca */
+        body[data-theme="dark"] .card-title .text-warning { color: orange !important; }
+        body[data-theme="dark"] .form-label { color: var(--dark-mode-text-color) !important; }
+        body[data-theme="dark"] .form-control, body[data-theme="dark"] .form-select {
+            background-color: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.2) !important;
+            color: var(--dark-mode-text-color) !important;
+        }
+        body[data-theme="dark"] .form-control::placeholder { color: rgba(255,255,255,0.4) !important; }
+        body[data-theme="dark"] .form-control:focus, body[data-theme="dark"] .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25) !important;
+            border-color: rgba(255,255,255,0.5) !important;
+        }
+        body[data-theme="dark"] .text-muted { color: rgba(255,255,255,0.6) !important; }
+        body[data-theme="dark"] .list-group-item { color: var(--dark-mode-text-color) !important; }
+
+        body[data-theme="dark"] .accordion-item {
+            background-color: var(--dark-mode-card-bg) !important;
+            border-color: var(--dark-mode-border-color) !important;
+        }
+        body[data-theme="dark"] .accordion-button {
+            background-color: rgba(255,255,255,0.05) !important;
+            color: var(--dark-mode-text-color) !important;
+            border-bottom-color: var(--dark-mode-border-color) !important;
+        }
+        body[data-theme="dark"] .accordion-button:not(.collapsed) {
+            background: rgba(255,255,255,0.1) !important;
+            color: #fff !important;
+        }
+        body[data-theme="dark"] .accordion-button::after { filter: invert(1); }
+        body[data-theme="dark"] .badge.bg-primary { color: #fff !important; }
+        body[data-theme="dark"] .badge.bg-success { color: var(--dark-mode-text-color) !important; }
+
+        /* Estilos específicos para o Modal de Configurações no Modo Escuro */
+        body[data-theme="dark"] .modal-content {
+            background-color: var(--dark-mode-card-bg) !important;
+            color: var(--dark-mode-text-color) !important;
+            border: 1px solid var(--dark-mode-border-color) !important;
+        }
+        body[data-theme="dark"] .modal-header {
+            border-bottom-color: var(--dark-mode-border-color) !important;
+        }
+        body[data-theme="dark"] .modal-title {
+            color: var(--dark-mode-text-color) !important;
+        }
+        body[data-theme="dark"] .modal-footer {
+            border-top-color: var(--dark-mode-border-color) !important;
+        }
+        body[data-theme="dark"] .form-check-label {
+            color: var(--dark-mode-text-color) !important;
+        }
+        body[data-theme="dark"] .form-check-input:checked {
+            background-color: var(--secondary-color) !important; /* Azul da Luft para switch ativo */
+            border-color: var(--secondary-color) !important;
+        }
+        body[data-theme="dark"] .form-check-input[type="radio"]:checked {
+            background-color: var(--secondary-color) !important;
+            border-color: var(--secondary-color) !important;
+        }
+        body[data-theme="dark"] .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(var(--secondary-color), 0.25) !important;
+        }
+        body[data-theme="dark"] .form-select {
+            background-color: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.2) !important;
+            color: var(--dark-mode-text-color) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23e2e8f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important; /* Inverte a seta do select */
+        }
+        body[data-theme="dark"] .form-select option {
+            background-color: var(--dark-mode-card-bg) !important;
+            color: var(--dark-mode-text-color) !important;
+        }
+
+
+
+        /* Controles de Animação e Tamanho */
+        .animations-disabled .navbar-brand:hover i,
+        .animations-disabled .nav-link:hover,
+        .animations-disabled .profile-img-nav:hover,
+        .animations-disabled .profile-img-nav:focus,
+        .animations-disabled .dropdown-menu,
+        .animations-disabled .container-main,
+        .animations-disabled .alert,
+        .animations-disabled .btn-primary:hover,
+        .animations-disabled .btn-success:hover,
+        .animations-disabled .btn-info:hover,
+        .animations-disabled .btn-warning:hover,
+        .animations-disabled .btn-danger:hover,
+        .animations-disabled .btn-secondary:hover,
+        .animations-disabled .btn-outline-success:hover,
+        .animations-disabled .btn-outline-danger:hover {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .animations-disabled body::before {
+            animation: none !important;
+            background: none !important;
+        }
+
+        body.font-small { font-size: 0.85em; }
+        body.font-medium { font-size: 1em; } /* Padrão */
+        body.font-large { font-size: 1.15em; }
+
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container-main {
+                padding: 1.5rem;
+                margin: 20px auto 0 auto;
+                border-radius: var(--border-radius-base);
+            }
+            .navbar-brand { font-size: 1.2rem; }
+            .nav-link { padding: 0.5rem 0.8rem; }
+            .profile-img-nav { width: 35px; height: 35px; }
+            .btn-primary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-secondary, .btn-outline-success, .btn-outline-danger {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('home.home') }}">
-            <i class="bi bi-bar-chart-steps" style="font-size: 1.5em; color:#52dbfa;"></i>
-            PeopleOps 
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">
+            <i class="bi bi-bar-chart-steps"></i>
+            Tower Control System
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto align-items-center gap-2">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
             {% if current_user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('home.home') }}">
+                <a class="nav-link {% if request.endpoint == 'home.home' %}active{% endif %}" href="{{ url_for('home.home') }}">
                     <i class="bi bi-house-door"></i> Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {% if request.blueprint == 'feedbacks' %}active{% endif %}" href="{{ url_for('feedbacks.dashboard_feedbacks') }}">
                     <i class="bi bi-chat-left-dots"></i> Feedbacks
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-cash-coin"></i> Salários
+                <a class="nav-link" href="{{ url_for('funcionarios.lista_funcionarios') }}">
+                    <i class="bi bi-people"></i> Colaboradores
                 </a>
               </li>
-              <!-- Profile Dropdown -->
-              <li class="nav-item dropdown ms-2">
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('promocoes.lista_funcionarios') }}">
+                    <i class="bi bi-arrow-up-right-square"></i> Promoções
+                </a>
+              </li>
+              {# Adicione outros links de navegação aqui, se houver #}
+
+              <li class="nav-item dropdown ms-lg-2">
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="{{ url_for('static', filename=current_user.profile_picture or 'imgs/uploads/picture/use_default.png') }}"
                         class="profile-img-nav me-2"
@@ -117,7 +560,7 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
                             <i class="bi bi-gear"></i> Configurações
                         </a>
                     </li>
@@ -145,22 +588,150 @@
       </div>
     </nav>
 
-    <!-- Main content -->
     <div class="container-main">
-      {% with messages = get_flashed_messages() %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-          <div class="alert alert-info">
-            {% for message in messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
               <div>{{ message }}</div>
-            {% endfor %}
-          </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
         {% endif %}
       {% endwith %}
       {% block content %}{% endblock %}
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel"><i class="bi bi-palette"></i> Configurações Visuais</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6><i class="bi bi-moon-fill"></i> Modo de Tema</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                            <label class="form-check-label" for="darkModeSwitch">Modo Escuro</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-fonts"></i> Tamanho da Fonte</h6>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="fontSizeOptions" id="fontSmall" value="small">
+                            <label class="form-check-label" for="fontSmall">Pequeno</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="fontSizeOptions" id="fontMedium" value="medium" checked>
+                            <label class="form-check-label" for="fontMedium">Médio</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="fontSizeOptions" id="fontLarge" value="large">
+                            <label class="form-check-label" for="fontLarge">Grande</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-play-btn"></i> Animações</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="animationsToggle">
+                            <label class="form-check-label" for="animationsToggle">Desativar Animações</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-circle-half"></i> Contraste (Exemplo)</h6>
+                        <select class="form-select" id="contrastSetting">
+                            <option value="default">Padrão</option>
+                            <option value="high">Alto Contraste</option>
+                        </select>
+                        <small class="form-text text-muted">Ainda não implementado, mas um exemplo de futura opção.</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const darkModeSwitch = document.getElementById('darkModeSwitch');
+            const animationsToggle = document.getElementById('animationsToggle');
+            const fontSizeRadios = document.querySelectorAll('input[name="fontSizeOptions"]');
+
+            // --- Funções para aplicar e salvar preferências ---
+            function applyThemePreferences() {
+                // Modo Escuro
+                const isDarkMode = localStorage.getItem('darkMode') === 'enabled';
+                if (isDarkMode) {
+                    body.setAttribute('data-theme', 'dark');
+                    darkModeSwitch.checked = true;
+                } else {
+                    body.removeAttribute('data-theme');
+                    darkModeSwitch.checked = false;
+                }
+
+                // Animações
+                const animationsDisabled = localStorage.getItem('animations') === 'disabled';
+                if (animationsDisabled) {
+                    body.classList.add('animations-disabled');
+                    animationsToggle.checked = true;
+                } else {
+                    body.classList.remove('animations-disabled');
+                    animationsToggle.checked = false;
+                }
+
+                // Tamanho da Fonte
+                const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+                body.classList.remove('font-small', 'font-medium', 'font-large');
+                body.classList.add(`font-${savedFontSize}`);
+                fontSizeRadios.forEach(radio => {
+                    if (radio.value === savedFontSize) {
+                        radio.checked = true;
+                    }
+                });
+            }
+
+            function saveAndApplyPreference(key, value) {
+                localStorage.setItem(key, value);
+                applyThemePreferences();
+            }
+
+            // --- Event Listeners para os controles do modal ---
+            darkModeSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    saveAndApplyPreference('darkMode', 'enabled');
+                } else {
+                    saveAndApplyPreference('darkMode', 'disabled');
+                }
+            });
+
+            animationsToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    saveAndApplyPreference('animations', 'disabled');
+                } else {
+                    saveAndApplyPreference('animations', 'enabled');
+                }
+            });
+
+            fontSizeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    saveAndApplyPreference('fontSize', this.value);
+                });
+            });
+
+            // --- Aplica as preferências ao carregar a página ---
+            applyThemePreferences();
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

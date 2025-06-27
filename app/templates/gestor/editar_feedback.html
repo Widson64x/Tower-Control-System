@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <a href="{{ url_for('feedbacks.ver_feedbacks_funcionario', employee_id=feedback.employee.id) }}" class="btn btn-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left"></i> Voltar para Feedbacks
+        </a>
+        <div class="card shadow border-0 mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-3 text-warning"><i class="bi bi-pencil-square"></i> Editar Feedback para {{ feedback.employee.user.nome }}</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('feedbacks.editar_feedback', feedback_id=feedback.id) }}">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label"><i class="bi bi-pencil-square"></i> Descrição do Feedback</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="5" required>{{ feedback.descricao }}</textarea>
+                        <small class="form-text text-muted">Seja claro e específico sobre o comportamento ou desempenho.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo_feedback" class="form-label"><i class="bi bi-award"></i> Tipo de Feedback</label>
+                        <select class="form-control" id="tipo_feedback" name="tipo_feedback">
+                            <option value="positivo" {% if feedback.tipo_feedback == 'positivo' %}selected{% endif %}>Positivo</option>
+                            <option value="construtivo" {% if feedback.tipo_feedback == 'construtivo' %}selected{% endif %}>Construtivo</option>
+                            <option value="avaliacao" {% if feedback.tipo_feedback == 'avaliacao' %}selected{% endif %}>Avaliação de Desempenho</option>
+                            <option value="outro" {% if feedback.tipo_feedback == 'outro' %}selected{% endif %}>Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="pontuacao_geral" class="form-label"><i class="bi bi-star-fill text-warning"></i> Pontuação Geral (0 a 5)</label>
+                        <input type="number" step="0.01" min="0" max="5" class="form-control" id="pontuacao_geral" name="pontuacao_geral" value="{{ "%.2f"|format(feedback.pontuacao_geral) }}" required>
+                        <small class="form-text text-muted">Avalie de 0 (muito fraco) a 5 (excelente).</small>
+                    </div>
+
+                    <hr>
+                    <h5 class="mb-3"><i class="bi bi-bar-chart-line"></i> KPIs Avaliados (Qualidades e Defeitos)</h5>
+                    <small class="form-text text-muted mb-3 d-block">Adicione até 10 qualidades e/ou defeitos com seus respectivos níveis (0 a 5).</small>
+
+                    <div class="mb-4">
+                        <label class="form-label d-block"><i class="bi bi-patch-check text-success"></i> Qualidades</label>
+                        <div id="qualidadesContainer">
+                            </div>
+                        <button type="button" class="btn btn-outline-success btn-sm mt-2" id="addQualidadeBtn">
+                            <i class="bi bi-plus-circle"></i> Adicionar Qualidade
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label d-block"><i class="bi bi-patch-minus text-danger"></i> Defeitos</label>
+                        <div id="defeitosContainer">
+                            </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="addDefeitoBtn">
+                            <i class="bi bi-x-circle"></i> Adicionar Defeito
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Atualizar Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qualidadesContainer = document.getElementById('qualidadesContainer');
+            const addQualidadeBtn = document.getElementById('addQualidadeBtn');
+            let qualidadeCount = 0;
+
+            const defeitosContainer = document.getElementById('defeitosContainer');
+            const addDefeitoBtn = document.getElementById('addDefeitoBtn');
+            let defeitoCount = 0;
+
+            const MAX_KPIS = 10;
+
+            function createKpiField(type, container, initialName = '', initialNivel = '') {
+                if (type === 'qualidade' && qualidadeCount >= MAX_KPIS) {
+                    alert('Você atingiu o limite de qualidades para este feedback.');
+                    return;
+                }
+                if (type === 'defeito' && defeitoCount >= MAX_KPIS) {
+                    alert('Você atingiu o limite de defeitos para este feedback.');
+                    return;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'row g-2 mb-2 align-items-center kpi-item';
+                div.innerHTML = `
+                    <div class="col-6">
+                        <input type="text" class="form-control" name="kpi_${type}_nome[]" placeholder="Nome da ${type}" value="${initialName}" required>
+                    </div>
+                    <div class="col-4">
+                        <input type="number" step="0.01" min="0" max="5" class="form-control" name="kpi_${type}_nivel[]" placeholder="Nível (0-5)" value="${initialNivel}" required>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-kpi-btn" data-type="${type}">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+
+                if (type === 'qualidade') {
+                    qualidadeCount++;
+                } else {
+                    defeitoCount++;
+                }
+            }
+
+            // Popula os campos existentes ao carregar a página de edição
+            const qualidadesExistentes = {{ qualidades_existentes | tojson }};
+            for (const [name, nivel] of Object.entries(qualidadesExistentes)) {
+                createKpiField('qualidade', qualidadesContainer, name, nivel);
+            }
+            const defeitosExistentes = {{ defeitos_existentes | tojson }};
+            for (const [name, nivel] of Object.entries(defeitosExistentes)) {
+                createKpiField('defeito', defeitosContainer, name, nivel);
+            }
+
+            // Se não houver KPIs existentes, adicione um campo vazio inicial para cada tipo
+            if (Object.keys(qualidadesExistentes).length === 0) {
+                createKpiField('qualidade', qualidadesContainer);
+            }
+            if (Object.keys(defeitosExistentes).length === 0) {
+                createKpiField('defeito', defeitosContainer);
+            }
+
+
+            // Adicionar Qualidade
+            addQualidadeBtn.addEventListener('click', function() {
+                createKpiField('qualidade', qualidadesContainer);
+            });
+
+            // Adicionar Defeito
+            addDefeitoBtn.addEventListener('click', function() {
+                createKpiField('defeito', defeitosContainer);
+            });
+
+            // Remover KPI
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-kpi-btn') || e.target.closest('.remove-kpi-btn')) {
+                    const button = e.target.closest('.remove-kpi-btn');
+                    const item = button.closest('.kpi-item');
+                    if (item) {
+                        item.remove();
+                        const type = button.dataset.type;
+                        if (type === 'qualidade') {
+                            qualidadeCount--;
+                        } else {
+                            defeitoCount--;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
