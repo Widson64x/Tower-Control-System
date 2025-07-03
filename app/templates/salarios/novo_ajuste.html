@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Ajuste Salarial{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Novo Ajuste Salarial para {{ employee.user.nome }}</h2>
+    <p>Salário Atual: <strong>R$ {{ "%.2f"|format(employee.salario)|replace('.', ',') }}</strong></p>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('salarios.novo_ajuste', employee_id=employee.id) }}">
+                <div class="mb-3">
+                    <label for="novo_salario" class="form-label">Novo Salário (R$)</label>
+                    <input type="text" class="form-control" id="novo_salario" name="novo_salario" placeholder="Ex: 5500,50" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tipo_ajuste" class="form-label">Tipo de Ajuste</label>
+                    <select class="form-select" id="tipo_ajuste" name="tipo_ajuste" required>
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="Mérito">Mérito</option>
+                        <option value="Dissídio">Dissídio</option>
+                        <option value="Bônus">Bônus</option>
+                        <option value="Correção">Correção</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="data_ajuste" class="form-label">Data do Ajuste</label>
+                    <input type="date" class="form-control" id="data_ajuste" name="data_ajuste" value="{{ hoje }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="motivo" class="form-label">Motivo / Justificativa</label>
+                    <textarea class="form-control" id="motivo" name="motivo" rows="3"></textarea>
+                </div>
+
+                <a href="{{ url_for('salarios.painel_financeiro', employee_id=employee.id) }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Ajuste</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

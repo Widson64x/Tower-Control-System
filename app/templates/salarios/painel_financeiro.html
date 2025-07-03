@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Painel Financeiro - {{ employee.user.nome }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <h2>Painel Financeiro</h2>
+            <h4>{{ employee.user.nome }}</h4>
+            <p class="text-muted">{{ employee.cargo }} | Salário Atual: <strong>R$ {{ "%.2f"|format(employee.salario)|replace('.', ',') }}</strong></p>
+        </div>
+        <a href="{{ url_for('salarios.novo_ajuste', employee_id=employee.id) }}" class="btn btn-success mt-2 mt-md-0">
+            <i class="bi bi-plus-circle"></i> Novo Ajuste Salarial
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Evolução Salarial
+        </div>
+        <div class="card-body">
+            <canvas id="salaryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Histórico de Remuneração
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Evento</th>
+                            <th>Salário Anterior</th>
+                            <th>Salário Novo</th>
+                            <th>Variação</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in linha_do_tempo %}
+                        <tr>
+                            <td>{{ item.data.strftime('%d/%m/%Y') }}</td>
+                            <td><strong>{{ item.evento }}</strong></td>
+                            <td>R$ {{ "%.2f"|format(item.salario_anterior)|replace('.', ',') }}</td>
+                            <td>R$ {{ "%.2f"|format(item.salario_novo)|replace('.', ',') }}</td>
+                            <td>
+                                {% if item.salario_anterior and item.salario_anterior > 0 %}
+                                    {% set variacao = ((item.salario_novo / item.salario_anterior) - 1) * 100 %}
+                                    <span class="badge {% if variacao > 0 %}bg-success-subtle text-success-emphasis{% else %}bg-danger-subtle text-danger-emphasis{% endif %}">
+                                        {{ "%+.2f"|format(variacao)|replace('.', ',') }}%
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.motivo or 'N/A' }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">Nenhum histórico de remuneração encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('salaryChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|tojson }},
+                datasets: [{
+                    label: 'Salário (R$)',
+                    data: {{ chart_data|tojson }},
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'R$ ' + context.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

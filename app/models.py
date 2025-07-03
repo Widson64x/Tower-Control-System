@@ -93,3 +93,22 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f'<Feedback {self.id} para {self.employee.user.nome}>'
+    
+class SalaryAdjustmentLog(db.Model):
+    __tablename__ = "salary_adjustments_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    salario_anterior = db.Column(db.Numeric(10, 2), nullable=False)
+    salario_novo = db.Column(db.Numeric(10, 2), nullable=False)
+    data_ajuste = db.Column(db.Date, nullable=False, default=date.today)
+    tipo_ajuste = db.Column(db.String(80), nullable=False)
+    motivo = db.Column(db.Text, nullable=True)
+    aprovado_por_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    # Relacionamentos
+    employee = db.relationship('Employees', backref=db.backref('historico_ajustes', lazy=True))
+    aprovado_por = db.relationship('User')
+
+    def __repr__(self):
+        return f'<SalaryAdjustmentLog {self.id} - {self.tipo_ajuste}>'

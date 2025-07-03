@@ -7,6 +7,8 @@ from .routes.employees import funcionarios_bp
 from .routes.times import times_bp
 from .routes.promocoes import promocoes_bp
 from .routes.feedbacks import feedbacks_bp
+from .routes.salarios import salarios_bp
+from .routes.kpi import kpi_bp
 
 
 def create_app():
@@ -29,6 +31,8 @@ def create_app():
     app.register_blueprint(times_bp)
     app.register_blueprint(promocoes_bp)
     app.register_blueprint(feedbacks_bp)
+    app.register_blueprint(salarios_bp)
+    app.register_blueprint(kpi_bp)
 
     login_manager.login_view = "auth.login"
 

@@ -140,7 +140,7 @@
         }
         @keyframes menuFadeIn {
             from { opacity: 0; transform: translateY(10px);}
-            to   { opacity: 1; transform: translateY(0);}
+            to   { opacity: 1; transform: translateY(0);}
         }
         .dropdown-item {
             color: var(--neutral-dark); /* Ajuste para usar neutral-dark */
@@ -526,15 +526,15 @@
               <li class="nav-item dropdown ms-lg-2">
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="{{ url_for('static', filename=current_user.profile_picture or 'imgs/uploads/picture/use_default.png') }}"
-                        class="profile-img-nav me-2"
-                        alt="Perfil de {{ current_user.nome }}">
+                         class="profile-img-nav me-2"
+                         alt="Perfil de {{ current_user.nome }}">
                     <span>{{ current_user.nome.split(' ')[0] }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarProfileDropdown">
                     <li class="px-3 pb-1 pt-2 text-center">
                         <img src="{{ url_for('static', filename=current_user.profile_picture or 'imgs/uploads/picture/use_default.png') }}"
-                            class="profile-img-nav mb-2"
-                            style="width:58px;height:58px;">
+                             class="profile-img-nav mb-2"
+                             style="width:58px;height:58px;">
                         <div class="fw-bold">{{ current_user.nome }}</div>
                         <div class="text-muted small">{{ current_user.email }}</div>
                     </li>
@@ -712,6 +712,8 @@
             applyThemePreferences();
         });
     </script>
-    {% block extra_js %}{% endblock %}
+    
+    {% block extra_scripts %}{% endblock %}
+
 </body>
 </html>
