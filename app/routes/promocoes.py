@@ -7,53 +7,48 @@ from app.extensions import db
 promocoes_bp = Blueprint('promocoes', __name__, url_prefix='/promocoes')
 
 def parse_salario(valor_str):
-    """
-    Converte 'R$X.XXX,XX' -> float(Xxxx.xx)
-    """
+    """Converte 'R$X.XXX,XX' -> float(Xxxx.xx)"""
     valor_str = valor_str.strip().replace('R$', '').replace('.', '').replace(',', '.')
     try:
         return float(valor_str)
     except ValueError:
         return None
-    
-# 🔥 Tela para listar funcionários e promover
+
+# 🔥 Tela para listar funcionários e promover (COM FILTRO DE ATIVOS)
 @promocoes_bp.route('/')
 @login_required
 def lista_funcionarios():
-    funcionarios = Employees.query.all()
+    # ❗ CORREÇÃO: Lista apenas funcionários ativos.
+    funcionarios = Employees.query.filter_by(active=True).all()
     return render_template('gestor/promocoes.html', funcionarios=funcionarios)
 
-# ✨ Rota de promover funcionário
+# ✨ Rota de promover funcionário (COM VALIDAÇÃO DE ATIVO)
 @promocoes_bp.route('/<int:funcionario_id>/promover', methods=['GET', 'POST'])
 @login_required
 def promover_funcionario(funcionario_id):
     funcionario = Employees.query.get_or_404(funcionario_id)
+
+    # ❗ VALIDAÇÃO: Impede a promoção de funcionários inativos.
+    if not funcionario.active:
+        flash('Este funcionário não está ativo e não pode ser promovido.', 'danger')
+        return redirect(url_for('promocoes.lista_funcionarios'))
 
     if request.method == 'POST':
         novo_cargo = request.form.get('cargo')
         novo_salario_str = request.form.get('salario')
         motivo = request.form.get('motivo')
 
-        # Conversão de salário
         novo_salario = parse_salario(novo_salario_str)
         if novo_salario is None:
             flash('Formato de salário inválido. Use o formato "1234,56".', 'danger')
             return redirect(url_for('promocoes.promover_funcionario', funcionario_id=funcionario_id))
 
-        # VALIDAÇÃO: Garante que o novo salário é maior que o atual
         if novo_salario <= funcionario.salario:
-            # -------------------------------------------------------------------- #
-            # ✨ CORREÇÃO APLICADA AQUI ✨
-            # Formata o salário atual para exibição (funciona com float e Decimal)
-            # -------------------------------------------------------------------- #
             salario_formatado_temp = format(funcionario.salario, ",.2f")
-            # Troca '.' por ',' e ',' por '.' de forma segura
             salario_atual_formatado = salario_formatado_temp.replace(',', 'X').replace('.', ',').replace('X', '.')
-            
             flash(f'Erro: O novo salário ({novo_salario_str}) deve ser maior que o salário atual (R$ {salario_atual_formatado}).', 'danger')
             return redirect(url_for('promocoes.promover_funcionario', funcionario_id=funcionario_id))
-        
-        # Se a validação passou, continua com o registro...
+
         promocao = PromotionLog(
             employee_id=funcionario.id,
             cargo_anterior=funcionario.cargo,

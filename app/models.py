@@ -25,6 +25,7 @@ class Employees(db.Model):
     salario = db.Column(db.Numeric(10, 2), nullable=False)
     media_feedbacks = db.Column(db.Numeric(3, 2), default=0.0)
     data_entrada = db.Column(db.Date, default=date.today)
+    data_saida = db.Column(db.Date)
     status = db.Column(db.String(50), default='Ativo')
     active = db.Column(db.Boolean, default=True)
 

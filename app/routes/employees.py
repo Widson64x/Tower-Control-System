@@ -29,6 +29,7 @@ def demitir_funcionario(funcionario_id):
 
     funcionario.active = False
     funcionario.status = 'Demitido'
+    funcionario.data_saida = date.today()
 
     # Atualiza os registros na tabela team_members
     membros = TeamMember.query.filter_by(user_id=funcionario.user_id, status='ativo').all()
