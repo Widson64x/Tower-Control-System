@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if milestone %}Editar Marco{% else %}Adicionar Marco{% endif %} | Tower Control{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="mb-4 fw-bold text-primary">
+            <i class="bi {% if milestone %}bi-pencil-square{% else %}bi-plus-circle{% endif %} me-3"></i>
+            {% if milestone %}Editar Marco{% else %}Adicionar Novo Marco{% endif %}
+        </h1>
+
+        <div class="card shadow-sm border-light">
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="title" class="form-label">Título do Marco*</label>
+                            <input type="text" class="form-control" name="title" id="title" value="{{ milestone.title if milestone else '' }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="milestone_date" class="form-label">Data do Marco*</label>
+                            <input type="date" class="form-control" name="milestone_date" id="milestone_date" value="{{ milestone.milestone_date.isoformat() if milestone else today }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" id="description" rows="4">{{ milestone.description if milestone else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="A fazer" {% if milestone and milestone.status == 'A fazer' %}selected{% endif %}>A fazer</option>
+                                <option value="Em progresso" {% if milestone and milestone.status == 'Em progresso' %}selected{% endif %}>Em progresso</option>
+                                <option value="Concluído" {% if milestone and milestone.status == 'Concluído' %}selected{% endif %}>Concluído</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="icon" class="form-label">Ícone Visual</label>
+                            <select class="form-select" name="icon" id="icon">
+                                <option value="bi-flag" {% if milestone and milestone.icon == 'bi-flag' %}selected{% endif %}>&#x1F6A9; Bandeira (Padrão)</option>
+                                <option value="bi-trophy" {% if milestone and milestone.icon == 'bi-trophy' %}selected{% endif %}>&#x1F3C6; Troféu</option>
+                                <option value="bi-rocket-takeoff" {% if milestone and milestone.icon == 'bi-rocket-takeoff' %}selected{% endif %}>&#x1F680; Foguete</option>
+                                <option value="bi-award" {% if milestone and milestone.icon == 'bi-award' %}selected{% endif %}>&#x1F396; Medalha</option>
+                                <option value="bi-star" {% if milestone and milestone.icon == 'bi-star' %}selected{% endif %}>&#x2B50; Estrela</option>
+                                <option value="bi-check2-circle" {% if milestone and milestone.icon == 'bi-check2-circle' %}selected{% endif %}>&#x2714; Conclusão</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <p class="text-muted">Associe este marco a um funcionário ou time (opcional).</p>
+                    
+                    <div class="row">
+                         <div class="col-md-6 mb-3">
+                            <label for="employee_id" class="form-label">Associar ao Funcionário</label>
+                            <select class="form-select" name="employee_id" id="employee_id">
+                                <option value="">-- Nenhum --</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee.id }}" {% if milestone and milestone.employee_id == employee.id %}selected{% endif %}>{{ employee.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="team_id" class="form-label">Associar ao Time</label>
+                            <select class="form-select" name="team_id" id="team_id">
+                                <option value="">-- Nenhum --</option>
+                                {% for team in teams %}
+                                <option value="{{ team.id }}" {% if milestone and milestone.team_id == team.id %}selected{% endif %}>{{ team.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('milestones.list_milestones') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Salvar Marco
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if jornada %}Editar Marco da Jornada{% else %}Adicionar Marco à Jornada{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <h1 class="mb-4 fw-bold text-primary">
+            <i class="bi {% if jornada %}bi-pencil-square{% else %}bi-plus-circle{% endif %} me-3"></i>
+            {% if jornada %}Editar Marco da Jornada{% else %}Adicionar Marco à Jornada{% endif %}
+        </h1>
+
+        <div class="card shadow-sm border-light">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título do Marco*</label>
+                        <input type="text" class="form-control" name="titulo" id="titulo" value="{{ jornada.titulo if jornada else '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (Conte a história desta conquista)</label>
+                        <textarea class="form-control" name="descricao" id="descricao" rows="4">{{ jornada.descricao if jornada else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="data_jornada" class="form-label">Data do Acontecimento*</label>
+                            <input type="date" class="form-control" name="data_jornada" id="data_jornada" value="{{ jornada.data_jornada.isoformat() if jornada else today }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tipo" class="form-label">Tipo de Conquista</label>
+                            <select class="form-select" name="tipo" id="tipo">
+                                <option value="Individual" {% if jornada and jornada.tipo == 'Individual' %}selected{% endif %}>Individual</option>
+                                <option value="Time" {% if jornada and jornada.tipo == 'Time' %}selected{% endif %}>Time</option>
+                                <option value="Empresa" {% if jornada and jornada.tipo == 'Empresa' %}selected{% endif %}>Empresa</option>
+                            </select>
+                        </div>
+                         <div class="col-md-4 mb-3">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <input type="text" class="form-control" name="categoria" id="categoria" placeholder="Ex: Projeto, Vendas, Inovação" value="{{ jornada.categoria if jornada else '' }}">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <p class="text-muted">Associe este marco a um herói ou time (opcional).</p>
+                    
+                    <div class="row">
+                         <div class="col-md-6 mb-3">
+                            <label for="employee_id" class="form-label">Associar ao Herói (Funcionário)</label>
+                            <select class="form-select" name="employee_id" id="employee_id">
+                                <option value="">-- Nenhum --</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee.id }}" {% if jornada and jornada.employee_id == employee.id %}selected{% endif %}>{{ employee.user.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="team_id" class="form-label">Associar ao Time</label>
+                            <select class="form-select" name="team_id" id="team_id">
+                                <option value="">-- Nenhum --</option>
+                                {% for team in teams %}
+                                <option value="{{ team.id }}" {% if jornada and jornada.team_id == team.id %}selected{% endif %}>{{ team.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="icone" class="form-label">Ícone Visual</label>
+                        <select class="form-select" name="icone" id="icone">
+                            <option value="bi-flag" {% if jornada and jornada.icone == 'bi-flag' %}selected{% endif %}>&#x1F6A9; Bandeira</option>
+                            <option value="bi-trophy" {% if jornada and jornada.icone == 'bi-trophy' %}selected{% endif %}>&#x1F3C6; Troféu</option>
+                            <option value="bi-rocket-takeoff" {% if jornada and jornada.icone == 'bi-rocket-takeoff' %}selected{% endif %}>&#x1F680; Foguete</option>
+                            <option value="bi-award" {% if jornada and jornada.icone == 'bi-award' %}selected{% endif %}>&#x1F396; Medalha</option>
+                            <option value="bi-star" {% if jornada and jornada.icone == 'bi-star' %}selected{% endif %}>&#x2B50; Estrela</option>
+                            <option value="bi-lightbulb" {% if jornada and jornada.icone == 'bi-lightbulb' %}selected{% endif %}>&#x1F4A1; Ideia</option>
+                            <option value="bi-graph-up-arrow" {% if jornada and jornada.icone == 'bi-graph-up-arrow' %}selected{% endif %}>&#x1F4C8; Meta</option>
+                            <option value="bi-check2-circle" {% if jornada and jornada.icone == 'bi-check2-circle' %}selected{% endif %}>&#x2714; Conclusão</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('jornadas.timeline') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Salvar Marco
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

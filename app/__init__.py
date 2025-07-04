@@ -9,6 +9,8 @@ from .routes.promocoes import promocoes_bp
 from .routes.feedbacks import feedbacks_bp
 from .routes.salarios import salarios_bp
 from .routes.kpi import kpi_bp
+from .routes.milestones import milestones_bp
+from .routes.jornadas import jornadas_bp
 
 
 def create_app():
@@ -33,6 +35,8 @@ def create_app():
     app.register_blueprint(feedbacks_bp)
     app.register_blueprint(salarios_bp)
     app.register_blueprint(kpi_bp)
+    app.register_blueprint(milestones_bp)
+    app.register_blueprint(jornadas_bp)
 
     login_manager.login_view = "auth.login"
 

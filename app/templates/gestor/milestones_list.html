@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Milestones | Tower Control{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold text-primary mb-0"><i class="bi bi-flag-fill me-3"></i>Milestones</h1>
+    <a href="{{ url_for('milestones.add_milestone') }}" class="btn btn-success btn-lg shadow-sm">
+        <i class="bi bi-plus-circle me-2"></i> Criar Novo Marco
+    </a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="row g-4">
+    {% for milestone in milestones %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-light">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi {{ milestone.icon or 'bi-flag' }} fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5 class="card-title mb-1">{{ milestone.title }}</h5>
+                        <span class="badge 
+                            {% if milestone.status == 'Concluído' %}bg-success
+                            {% elif milestone.status == 'Em progresso' %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}">{{ milestone.status }}</span>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-2"><strong>Data:</strong> {{ milestone.milestone_date.strftime('%d/%m/%Y') }}</p>
+                
+                <p class="card-text flex-grow-1">{{ milestone.description or 'Sem descrição detalhada.' }}</p>
+
+                <div class="mt-auto">
+                    {% if milestone.employee %}
+                    <p class="small text-muted mb-1"><strong><i class="bi bi-person"></i> Funcionário:</strong> {{ milestone.employee.nome }}</p>
+                    {% endif %}
+                    {% if milestone.team %}
+                    <p class="small text-muted mb-1"><strong><i class="bi bi-people"></i> Time:</strong> {{ milestone.team.nome }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3 border-top pt-3">
+                    <a href="{{ url_for('milestones.edit_milestone', milestone_id=milestone.id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Editar</a>
+                    <form action="{{ url_for('milestones.delete_milestone', milestone_id=milestone.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este marco? Esta ação não pode ser desfeita.');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Deletar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="bi bi-flag fs-1 text-muted"></i>
+                <h5 class="card-title mt-3">Nenhum marco encontrado</h5>
+                <p class="card-text">Comece a registrar as conquistas importantes do seu time!</p>
+                <a href="{{ url_for('milestones.add_milestone') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle me-2"></i>Criar seu primeiro marco
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

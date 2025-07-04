@@ -2,6 +2,9 @@ from .extensions import db
 from flask_login import UserMixin
 from datetime import datetime, date
 from sqlalchemy.dialects.postgresql import JSONB # Importe JSONB para dados semi-estruturados
+from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+
 
 class User(db.Model, UserMixin):
     __tablename__ = "users"
@@ -113,3 +116,110 @@ class SalaryAdjustmentLog(db.Model):
 
     def __repr__(self):
         return f'<SalaryAdjustmentLog {self.id} - {self.tipo_ajuste}>'
+    
+class Milestone(db.Model):
+    """
+    Modelo para Milestones (Marcos).
+    O nome da tabela é 'milestones', mas as colunas estão em português.
+    """
+    __tablename__ = "milestones"
+
+    # Coluna no DB: 'id'
+    id = Column(Integer, primary_key=True)
+    
+    # Coluna no DB: 'titulo'
+    title = Column('titulo', String(150), nullable=False)
+    
+    # Coluna no DB: 'descricao'
+    description = Column('descricao', Text)
+    
+    # Coluna no DB: 'data_marco'
+    milestone_date = Column('data_marco', Date, nullable=False, default=date.today)
+    
+    # Coluna no DB: 'status'
+    status = Column('status', String(50), nullable=False, default='A fazer')
+    
+    # Coluna no DB: 'icone'
+    icon = Column('icone', String(50), default='bi-flag')
+
+    # Chaves Estrangeiras
+    created_by_id = Column('criado_por_id', Integer, ForeignKey('users.id'))
+    employee_id = Column('employee_id', Integer, ForeignKey('employees.id'))
+    team_id = Column('team_id', Integer, ForeignKey('teams.id'))
+
+    # Coluna no DB: 'data_criacao'
+    created_at = Column('data_criacao', DateTime, default=datetime.utcnow)
+
+    # Relacionamentos (não criam colunas, apenas facilitam as queries)
+    creator = relationship('User', foreign_keys=[created_by_id])
+    employee = relationship('Employees', backref='milestones')
+    team = relationship('Team', backref='milestones')
+
+    def __repr__(self):
+        return f'<Milestone {self.id}: {self.title}>'
+    
+class Jornada(db.Model):
+    __tablename__ = 'journeys'  # <-- ATUALIZADO
+
+    id = Column(Integer, primary_key=True)
+    titulo = Column('titulo', String(200), nullable=False)
+    descricao = Column('descricao', Text)
+    data_jornada = Column('data_jornada', Date, nullable=False, default=date.today)
+    tipo = Column('tipo', String(50), nullable=False, default='Individual')
+    categoria = Column('categoria', String(50))
+    icone = Column('icone', String(50), default='bi-flag')
+    cor_card = Column('cor_card', String(30), default='bg-light')
+    criado_por_id = Column('criado_por_id', Integer, ForeignKey('users.id'))
+    employee_id = Column('employee_id', Integer, ForeignKey('employees.id'))
+    team_id = Column('team_id', Integer, ForeignKey('teams.id'))
+    data_criacao = Column('data_criacao', DateTime, default=datetime.utcnow)
+
+    # Relacionamentos (nenhuma mudança necessária aqui)
+    criador = relationship('User', foreign_keys=[criado_por_id])
+    employee = relationship('Employees', backref='jornadas')
+    time = relationship('Team', backref='jornadas')
+    reacoes = relationship('JornadaReacao', backref='jornada', cascade="all, delete-orphan")
+    comentarios = relationship('JornadaComentario', backref='jornada', cascade="all, delete-orphan")
+
+class Conquista(db.Model):
+    __tablename__ = 'achievements'  # <-- ATUALIZADO
+
+    id = Column(Integer, primary_key=True)
+    nome = Column('nome', String(100), nullable=False, unique=True)
+    descricao = Column('descricao', Text, nullable=False)
+    icone_emblema = Column('icone_emblema', String(50), nullable=False)
+    pontos = Column('pontos', Integer, default=10)
+
+class UsuarioConquista(db.Model):
+    __tablename__ = 'user_achievements'  # <-- ATUALIZADO
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), nullable=False)
+    conquista_id = Column('conquista_id', Integer, ForeignKey('achievements.id'), nullable=False) # Ref atualizada
+    jornada_id = Column('jornada_id', Integer, ForeignKey('journeys.id')) # Ref atualizada
+    data_desbloqueio = Column('data_desbloqueio', DateTime, default=datetime.utcnow)
+    
+    usuario = relationship('User', backref='conquistas_ganhas')
+    conquista = relationship('Conquista')
+    jornada_origem = relationship('Jornada')
+
+class JornadaReacao(db.Model):
+    __tablename__ = 'journey_reactions'  # <-- ATUALIZADO
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), nullable=False)
+    jornada_id = Column('jornada_id', Integer, ForeignKey('journeys.id'), nullable=False) # Ref atualizada
+    tipo_reacao = Column('tipo_reacao', String(50), nullable=False)
+
+    usuario = relationship('User')
+
+class JornadaComentario(db.Model):
+    __tablename__ = 'journey_comments'  # <-- ATUALIZADO
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column('user_id', Integer, ForeignKey('users.id'), nullable=False)
+    jornada_id = Column('jornada_id', Integer, ForeignKey('journeys.id'), nullable=False) # Ref atualizada
+    comentario = Column('comentario', Text, nullable=False)
+    data_comentario = Column('data_comentario', DateTime, default=datetime.utcnow)
+
+    usuario = relationship('User')
